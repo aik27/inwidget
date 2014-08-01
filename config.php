@@ -1,15 +1,19 @@
 <?php
 
-// конфигурация виджета
+// Config
 $CONFIG = array(
-	// Логин в Instagram. Из этого профиля будут транслироваться фотографии.
+	// Instagram login
 	'LOGIN' =>'fotokto_ru',
-	// CLIEN_ID выданный при регистрации приложения в Instagram.
+	// CLIEN_ID of Instagram application
 	'CLIENT_ID' => 'bd15adcf901046049a5cc89fed0e2e23',
-	// Заголовок виджета
+	// Get pictures from WORLDWIDE by tag name. 
+	// Use this options only if you want show pictures of other users. 
+	// Important! Profile avatar and statistic will be hidden.
+	'HASHTAG'=>'',
+	// Title of widget
 	'title'=> 'Мы в Instagram:',
-	// Сколько фотографий запрашивать из Instagram
+	// How many pictures will get from Instagram?
 	'imgCount' => 30,
-	// Через сколько часов обновлять кэш.
+	// Cache expiration time (hours)
 	'expiration' => 6,
 );

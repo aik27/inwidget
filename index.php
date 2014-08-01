@@ -1,6 +1,6 @@
 <?php 
 /**
- * Project:     InWidget: show pictures from instagram.com on your site!
+ * Project:     inWidget: show pictures from instagram.com on your site!
  * File:        index.php
  *
  * This library is free software; you can redistribute it and/or
@@ -10,8 +10,8 @@
  * @link http://inwidget.ru
  * @copyright 2014 Alexandr Kazarmshchikov
  * @author Alexandr Kazarmshchikov
- * @version 1.0.1
- * @package Inwidget
+ * @version 1.0.2
+ * @package inWidget
  * 
  */
 

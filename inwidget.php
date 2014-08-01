@@ -1,6 +1,6 @@
 <?php
 /**
- * Project:     InWidget: show pictures from instagram.com on your site!
+ * Project:     inWidget: show pictures from instagram.com on your site!
  * File:        inwidget.php
  *
  * This library is free software; you can redistribute it and/or
@@ -10,8 +10,8 @@
  * @link http://inwidget.ru
  * @copyright 2014 Alexandr Kazarmshchikov
  * @author Alexandr Kazarmshchikov
- * @version 1.0.1
- * @package Inwidget
+ * @version 1.0.2
+ * @package inWidget
  *
  */
 class inWidget {
@@ -29,7 +29,7 @@ class inWidget {
 		101=>'Can\'t get access to file <b>{$cacheFile}</b>. Check permissions.',
 		102=>'Can\'t get modification time of <b>{$cacheFile}</b>. Cache always be expired.',
 		103=>'Can\'t send request. You need the cURL extension OR set allow_url_fopen to "true" in php.ini and openssl extension',
-		401=>'Can\'t connect to Instagram API server. <br />If you want send request again, delete cache file or wait cache expiration. API server answer: <br /><br />{$answer}',
+		401=>'Can\'t get correct answer from Instagram API server. <br />If you want send request again, delete cache file or wait cache expiration. API server answer: <br /><br />{$answer}',
 		402=>'Can\'t get data from Instagram API server. User OR CLIENT_ID not found.<br />If you want send request again, delete cache file or wait cache expiration.',
 		403=>'Instagram account doesn\'t have any photo. <br />If you want send request again, delete cache file or wait cache expiration.',
 	);
@@ -73,7 +73,11 @@ class inWidget {
 		// -------------------------------------------------
 		// Query #3. Try to get photo
 		// -------------------------------------------------
-		$this->answer = $this->send('https://api.instagram.com/v1/users/'.$this->data['userid'].'/media/recent/?client_id='.$this->config['CLIENT_ID'].'&count='.$this->config['imgCount']);
+		if(!empty($this->config['HASHTAG'])){
+			$this->config['HASHTAG'] = str_replace('#','',$this->config['HASHTAG']);
+			$this->answer = $this->send('https://api.instagram.com/v1/tags/'.$this->config['HASHTAG'].'/media/recent/?client_id='.$this->config['CLIENT_ID'].'&count='.$this->config['imgCount']);
+		}
+		else $this->answer = $this->send('https://api.instagram.com/v1/users/'.$this->data['userid'].'/media/recent/?client_id='.$this->config['CLIENT_ID'].'&count='.$this->config['imgCount']);
 		$answer = json_decode($this->answer);
 		if(is_object($answer)){
 			if($answer->meta->code == 200){
@@ -102,8 +106,9 @@ class inWidget {
 		}
 	}
 	public function getCache(){
-		if(filemtime($this->cacheFile)<=0) die($this->getError(102));
-		$cacheExpTime = filemtime($this->cacheFile) + ($this->config['expiration']*60*60);
+		$mtime = @filemtime($this->cacheFile);
+		if($mtime<=0) die($this->getError(102));
+		$cacheExpTime = $mtime + ($this->config['expiration']*60*60);
 		if(time() > $cacheExpTime) return false;
 		else {
 			$rawData = file_get_contents($this->cacheFile);
@@ -145,7 +150,7 @@ class inWidget {
 			$this->inline = (int)$_GET['inline'];
 		if(isset($_GET['view']))  
 			$this->view = (int)$_GET['view'];
-		if(isset($_GET['toolbar']) AND $_GET['toolbar'] == 'false')  
+		if(isset($_GET['toolbar']) AND $_GET['toolbar'] == 'false' OR !empty($this->config['HASHTAG']))  
 			$this->toolbar = false;
 		if(isset($_GET['preview'])) 
 			$this->preview = $_GET['preview'];
