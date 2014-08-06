@@ -231,7 +231,7 @@ if (!is_object($inWidget->data)) die('<b style="color:red;">Cache file contains 
         </table>
     <?php endif; ?>
     <?php if (!empty($inWidget->data->images)) :
-        shuffle($inWidget->data->images); // maybe it's should be optionized?
+        shuffle($inWidget->data->images);
         $inWidget->data->images = array_slice($inWidget->data->images, 0, $inWidget->view);
         ?>
         <div id="widgetData" class="data">
