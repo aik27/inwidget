@@ -247,7 +247,7 @@ if (!is_object($inWidget->data)) die('<b style="color:red;">Cache file contains 
                     default:
                         $thumbnail = $item->small;
                 } ?>
-                <a href="<php echo $item->link?>" class="image" target="_blank"><img src="<?=$thumbnail; ?>"/></a>
+                <a href="<php echo $item->link?>" class="image" target="_blank"><img src="<?php echo $thumbnail; ?>"/></a>
             <?php
             endforeach;
             ?>
