@@ -49,9 +49,13 @@ class inWidget {
 		$answer = json_decode($this->answer);
 		if(is_object($answer)){
 			if($answer->meta->code == 200 AND !empty($answer->data)){
-				$this->data['userid'] 	= $answer->data[0]->id;
-				$this->data['username'] = $answer->data[0]->username;
-				$this->data['avatar'] 	= $answer->data[0]->profile_picture;
+				foreach ($answer->data as $key=>$item){
+					if($item->username == $this->config['LOGIN']){
+						$this->data['userid'] 	= $item->id;
+						$this->data['username'] = $item->username;
+						$this->data['avatar'] 	= $item->profile_picture;
+					}
+				}
 			}
 			else die($this->getError(402));
 		}
