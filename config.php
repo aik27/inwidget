@@ -11,7 +11,7 @@ $CONFIG = array(
 	// Important! Profile avatar and statistic will be hidden.
 	'HASHTAG'=>'',
 	// Title of widget
-	'title'=> 'Мы в Instagram:',
+	'title'=> 'We on Instagram:',
 	// How many pictures will get from Instagram?
 	'imgCount' => 30,
 	// Cache expiration time (hours)
