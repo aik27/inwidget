@@ -1,7 +1,7 @@
-<?php 
+<?php
 /**
  * Project:     inWidget: show pictures from instagram.com on your site!
- * File:        index.php
+ * File:        en.php
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of MIT license
@@ -15,13 +15,11 @@
  * 
  */
 
-error_reporting(E_ALL & ~E_NOTICE & ~E_STRICT);
-setlocale(LC_ALL, "ru_RU.UTF-8");
-header('Content-type: text/html; charset=utf-8');
-		
-require_once 'inwidget.php';
-
-$inWidget = new inWidget();
-$inWidget->getData();
-
-require_once 'template.php';
+$LANG = array(
+	'title'			=> 'We\'re on Instagram:',
+	'buttonFollow' 	=> 'View',
+	'statPosts' 	=> 'posts',
+	'statFollowers'	=> 'followers',
+	'statFollowing'	=> 'following',
+	'imgEmpty'		=> 'user doesn\'t have any photos yet',
+);

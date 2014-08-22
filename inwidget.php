@@ -10,7 +10,7 @@
  * @link http://inwidget.ru
  * @copyright 2014 Alexandr Kazarmshchikov
  * @author Alexandr Kazarmshchikov
- * @version 1.0.2
+ * @version 1.0.4
  * @package inWidget
  *
  */
@@ -24,6 +24,9 @@ class inWidget {
 	public $preview = 'small';
 	public $imgWidth = 0;
 	public $cacheFile = 'cache/db.txt';
+	public $lang = array();
+	public $langName = '';
+	public $langPath = 'lang/';
 	public $answer = '';
 	public $errors = array(
 		101=>'Can\'t get access to file <b>{$cacheFile}</b>. Check permissions.',
@@ -31,15 +34,14 @@ class inWidget {
 		103=>'Can\'t send request. You need the cURL extension OR set allow_url_fopen to "true" in php.ini and openssl extension',
 		401=>'Can\'t get correct answer from Instagram API server. <br />If you want send request again, delete cache file or wait cache expiration. API server answer: <br /><br />{$answer}',
 		402=>'Can\'t get data from Instagram API server. User OR CLIENT_ID not found.<br />If you want send request again, delete cache file or wait cache expiration.',
-		403=>'Instagram account doesn\'t have any photo. <br />If you want send request again, delete cache file or wait cache expiration.',
 	);
 	public function __construct(){
 		require_once 'config.php';
 		$this->config = $CONFIG;
+		$this->checkConfig();
+		$this->checkCacheRights();
+		$this->setLang();
 		$this->setOptions();
-		$cacheFile = @fopen($this->cacheFile,'a+b');
-		if(!is_resource($cacheFile)) die($this->getError(101));
-		fclose($cacheFile);
 	}
 	public function apiQuery(){
 		// -------------------------------------------------
@@ -54,8 +56,10 @@ class inWidget {
 						$this->data['userid'] 	= $item->id;
 						$this->data['username'] = $item->username;
 						$this->data['avatar'] 	= $item->profile_picture;
+						break;
 					}
 				}
+				if(empty($this->data['userid'])) die($this->getError(402));
 			}
 			else die($this->getError(402));
 		}
@@ -78,7 +82,6 @@ class inWidget {
 		// Query #3. Try to get photo
 		// -------------------------------------------------
 		if(!empty($this->config['HASHTAG'])){
-			$this->config['HASHTAG'] = str_replace('#','',$this->config['HASHTAG']);
 			$this->answer = $this->send('https://api.instagram.com/v1/tags/'.$this->config['HASHTAG'].'/media/recent/?client_id='.$this->config['CLIENT_ID'].'&count='.$this->config['imgCount']);
 		}
 		else $this->answer = $this->send('https://api.instagram.com/v1/users/'.$this->data['userid'].'/media/recent/?client_id='.$this->config['CLIENT_ID'].'&count='.$this->config['imgCount']);
@@ -95,7 +98,7 @@ class inWidget {
 					}
 					$this->data['images'] = $images;
 				}
-				else die($this->getError(403));
+				else $this->data['images'] = array();
 			}
 			else die($this->getError(402));
 		}
@@ -112,7 +115,7 @@ class inWidget {
 	public function getCache(){
 		$mtime = @filemtime($this->cacheFile);
 		if($mtime<=0) die($this->getError(102));
-		$cacheExpTime = $mtime + ($this->config['expiration']*60*60);
+		$cacheExpTime = $mtime + ($this->config['cacheExpiration']*60*60);
 		if(time() > $cacheExpTime) return false;
 		else {
 			$rawData = file_get_contents($this->cacheFile);
@@ -146,6 +149,36 @@ class inWidget {
 		}
 		else die($this->getError(103));
 	}
+	public function checkConfig(){
+		$this->config['LOGIN'] = strtolower(trim($this->config['LOGIN']));
+		$this->config['CLIENT_ID'] = strtolower(trim($this->config['CLIENT_ID']));
+		$this->config['langDefault'] = strtolower(trim($this->config['langDefault']));
+		if(!empty($this->config['HASHTAG'])){
+			$this->config['HASHTAG'] = strtolower(trim($this->config['HASHTAG']));
+			$this->config['HASHTAG'] = str_replace('#','',$this->config['HASHTAG']);
+		}
+	}
+	public function checkCacheRights(){
+		$cacheFile = @fopen($this->cacheFile,'a+b');
+		if(!is_resource($cacheFile)) die($this->getError(101));
+		fclose($cacheFile);
+	}
+	public function setLang($name = ''){
+		if(empty($name) AND $this->config['langAuto'] === true AND !empty($_SERVER['HTTP_ACCEPT_LANGUAGE']))
+			$name = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
+		if(!empty($name)){
+			$name = strtolower($name);
+			if(file_exists($this->langPath.$name.'.php')) {
+				$this->langName = $name;
+				require $this->langPath.$name.'.php';
+			}
+		}
+		if(empty($LANG)){
+			$this->langName = $this->config['langDefault'];
+			require $this->langPath.$this->config['langDefault'].'.php';
+		}
+		$this->lang = $LANG;
+	}
 	public function setOptions(){
 		$this->width -= 2; 
 		if(isset($_GET['width'])) 
@@ -160,12 +193,14 @@ class inWidget {
 			$this->preview = $_GET['preview'];
 		if($this->width>0) 
 			$this->imgWidth = round(($this->width-(17+(9*$this->inline)))/$this->inline);
+		if(isset($_GET['lang']))
+			$this->setLang($_GET['lang']);
 	}
 	public function getError($code){
 		$this->errors[$code] = str_replace('{$cacheFile}',$this->cacheFile,$this->errors[$code]);
 		$this->errors[$code] = str_replace('{$answer}',strip_tags($this->answer),$this->errors[$code]);
 		$result = '<b>ERROR <a href="http://inwidget.ru/#error'.$code.'" target="_blank">#'.$code.'</a>:</b> '.$this->errors[$code];
-		if($code == 401 OR $code == 402 OR $code == 403){
+		if($code == 401 OR $code == 402){
 			file_put_contents($this->cacheFile,$result,LOCK_EX);
 		}
 		return $result;
