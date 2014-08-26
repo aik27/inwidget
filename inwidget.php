@@ -10,7 +10,7 @@
  * @link http://inwidget.ru
  * @copyright 2014 Alexandr Kazarmshchikov
  * @author Alexandr Kazarmshchikov
- * @version 1.0.4
+ * @version 1.0.5
  * @package inWidget
  *
  */
@@ -181,12 +181,12 @@ class inWidget {
 	}
 	public function setOptions(){
 		$this->width -= 2; 
-		if(isset($_GET['width'])) 
-			$this->width = (int)$_GET['width']-2;
-		if(isset($_GET['inline'])) 
-			$this->inline = (int)$_GET['inline'];
-		if(isset($_GET['view']))  
-			$this->view = (int)$_GET['view'];
+		if(isset($_GET['width']) AND (int)$_GET['width']>0)
+			$this->width = $_GET['width']-2;
+		if(isset($_GET['inline']) AND (int)$_GET['inline']>0)
+			$this->inline = $_GET['inline'];
+		if(isset($_GET['view']) AND (int)$_GET['view']>0)  
+			$this->view = $_GET['view'];
 		if(isset($_GET['toolbar']) AND $_GET['toolbar'] == 'false' OR !empty($this->config['HASHTAG']))  
 			$this->toolbar = false;
 		if(isset($_GET['preview'])) 

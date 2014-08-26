@@ -10,7 +10,7 @@
  * @link http://inwidget.ru
  * @copyright 2014 Alexandr Kazarmshchikov
  * @author Alexandr Kazarmshchikov
- * @version 1.0.4
+ * @version 1.0.5
  * @package inWidget
  *
  */
@@ -160,7 +160,6 @@ if(!is_object($inWidget->data)) die('<b style="color:red;">Cache file contains p
 				width:<?php echo $inWidget->width; ?>px;
 				margin:3px 0 0 0;
 				font-size:10px;
-				color:#666;
 				text-align:center;
 			}
 			.copyright a:link, .copyright a:visited {
@@ -224,7 +223,7 @@ if(!is_object($inWidget->data)) die('<b style="color:red;">Cache file contains p
 					default:
 						$thumbnail = $item->small;
 				}
-				echo '<a href="'.$item->link.'" class="image" target="_blank"><img src="'.$thumbnail.'" /></a>';
+				echo '<a href="'.$item->link.'" class="image" target="_blank"><img src="'.$thumbnail.'" alt="" /></a>';
 			}
 			echo '<div class="clear">&nbsp;</div>';
 			echo '</div>';
