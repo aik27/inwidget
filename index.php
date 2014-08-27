@@ -10,12 +10,12 @@
  * @link http://inwidget.ru
  * @copyright 2014 Alexandr Kazarmshchikov
  * @author Alexandr Kazarmshchikov
- * @version 1.0.5
+ * @version 1.0.6
  * @package inWidget
  * 
  */
 
-error_reporting(~E_ALL);
+error_reporting(E_ALL & ~E_NOTICE & ~E_STRICT);
 setlocale(LC_ALL, "ru_RU.UTF-8");
 header('Content-type: text/html; charset=utf-8');
 		

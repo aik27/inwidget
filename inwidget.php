@@ -10,7 +10,7 @@
  * @link http://inwidget.ru
  * @copyright 2014 Alexandr Kazarmshchikov
  * @author Alexandr Kazarmshchikov
- * @version 1.0.5
+ * @version 1.0.6
  * @package inWidget
  *
  */
@@ -82,7 +82,7 @@ class inWidget {
 		// Query #3. Try to get photo
 		// -------------------------------------------------
 		if(!empty($this->config['HASHTAG'])){
-			$this->answer = $this->send('https://api.instagram.com/v1/tags/'.$this->config['HASHTAG'].'/media/recent/?client_id='.$this->config['CLIENT_ID'].'&count='.$this->config['imgCount']);
+			$this->answer = $this->send('https://api.instagram.com/v1/tags/'.urlencode($this->config['HASHTAG']).'/media/recent/?client_id='.$this->config['CLIENT_ID'].'&count='.$this->config['imgCount']);
 		}
 		else $this->answer = $this->send('https://api.instagram.com/v1/users/'.$this->data['userid'].'/media/recent/?client_id='.$this->config['CLIENT_ID'].'&count='.$this->config['imgCount']);
 		$answer = json_decode($this->answer);
@@ -150,11 +150,20 @@ class inWidget {
 		else die($this->getError(103));
 	}
 	public function checkConfig(){
-		$this->config['LOGIN'] = strtolower(trim($this->config['LOGIN']));
-		$this->config['CLIENT_ID'] = strtolower(trim($this->config['CLIENT_ID']));
-		$this->config['langDefault'] = strtolower(trim($this->config['langDefault']));
+		if(!empty($this->config['LOGIN'])){
+			$this->config['LOGIN'] = strtolower(trim($this->config['LOGIN']));
+		}
+		else die('LOGIN required in config.php');
+		if(!empty($this->config['CLIENT_ID'])){
+			$this->config['CLIENT_ID'] = strtolower(trim($this->config['CLIENT_ID']));
+		}
+		else die('CLIENT_ID required in config.php');
+		if(!empty($this->config['langDefault'])){
+			$this->config['langDefault'] = strtolower(trim($this->config['langDefault']));
+		}
+		else die('langDefault required in config.php');
 		if(!empty($this->config['HASHTAG'])){
-			$this->config['HASHTAG'] = strtolower(trim($this->config['HASHTAG']));
+			$this->config['HASHTAG'] = trim($this->config['HASHTAG']);
 			$this->config['HASHTAG'] = str_replace('#','',$this->config['HASHTAG']);
 		}
 	}

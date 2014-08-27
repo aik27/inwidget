@@ -27,6 +27,6 @@ $CONFIG = array(
 
 	// Language auto-detection [ true / false ]
 	// This option may no effect if you set language by $_GET variable
-	'langAuto' => true,
+	'langAuto' => false,
 
 );
