@@ -1,0 +1,96 @@
+                   Instagram PHP Scraper Change Log
+                   ================================
+Version v0.4.5
+--------------
+- Enh: BIG thing. Get best resolutions for medias possible
+
+Version v0.4.4
+--------------
+- Bug: Image urls broken for some medias in getMediaByCode()
+
+Version v0.4.3
+--------------
+- Enh: Make methods getContentsFromUrl() and generateRandomString() static
+
+Version v0.4.2
+--------------
+- Bug: Fix 405 error with fetching accounts by id
+- Bug: Fix 405 error with fetching comments by id
+
+Version v0.4.1
+--------------
+- Enh: Url encode endpoints to support for example Japan language
+
+Version v0.4.0
+--------------
+- Enh: New methods to paginate medias getPaginateMedias() and getPaginateMediasByTag()
+
+Version v0.3.5
+--------------
+- Enh: Convenient media pagination getMediasByTag()
+
+Version v0.3.4
+--------------
+- Bug: Fix media urls
+
+Version v0.3.3
+--------------
+- Bug: Include class Location and Comment in InstagramScraper.php
+- Enh: Add locationId
+
+Version v0.3.2
+--------------
+- Enh: Add phpunit tests
+- Bug: Check if video views exist in Media::fromApi() method
+- Enh: Add getLocationTopMediasById() method
+- Enh: Add getLocationMediasById() method
+- Enh: Add Location model and getLocationById method
+
+Version v0.3.1
+--------------
+- Enh: Add locationName property to Media
+
+Version v0.3.0
+--------------
+- Enh: Change all methods in Instagram class to static
+- Enh: Add Instagram::getMediaCommentsByCode(). From now you can download ALL comments from media. (Tested on 8000 comments)
+- Enh: Add Instagram::getMediaCommentsById(). Same as above but with mediaId.
+
+Version v0.2.6
+--------------
+- Enh: Include Tag class
+- Enh: Clean image urls in fromTagPage() method
+- Enh: Add getTopMediasByTagName() method
+- Enh: New type of URLs
+- Enh: Add methods: Media::getIdFromCode()
+- Enh: Add methods: Instagram::getMediaById()
+- Enh: Fixes #15. Add likesCount, commentsCount properties.
+
+Version v0.2.5
+--------------
+- Enh: Add method. Search accounts by username
+- Enh: Add method. Search tags by tag name
+
+Version v0.2.4
+--------------
+- Bug: Fix when pagination return only first page and never the rest
+
+Version v0.2.3
+--------------
+- Bug: Require library with composer
+
+Version v0.2.2
+--------------
+- Enh: Remove concatenation in constants to support PHP versions before 5.6
+- Bug: In pagination in getMediasByTag() and getMedias() methods
+
+Version v0.2.1
+--------------
+- Bug: Include Endpoints class
+
+Version v0.2.0
+--------------
+- Enh: New way of scraping data
+- Enh: New method getMediasByTag() available
+- Enh: Moved models and exceptions to own packages
+- Enh: Add Endpoints class to store and generate endpoint links

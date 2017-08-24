@@ -8,18 +8,19 @@
  * http://inwidget.ru/MIT-license.txt
  * 
  * @link http://inwidget.ru
- * @copyright 2014 Alexandr Kazarmshchikov
+ * @copyright 2014-2017 Alexandr Kazarmshchikov
  * @author Alexandr Kazarmshchikov
- * @version 1.0.6
+ * @version 1.1.0
  * @package inWidget
  * 
  */
 
 $LANG = array(
-	'title'			=> 'Мы в Instagram:',
-	'buttonFollow' 	=> 'Посмотреть',
-	'statPosts' 	=> 'посты',
-	'statFollowers'	=> 'подписчики',
-	'statFollowing'	=> 'подписки',
-	'imgEmpty'		=> 'у пользователя нет фотографии',
+	'title'				=> 'Мы в Instagram:',
+	'buttonFollow' 		=> 'Посмотреть',
+	'statPosts' 		=> 'посты',
+	'statFollowers'		=> 'подписчики',
+	'statFollowing'		=> 'подписки',
+	'imgEmpty'			=> 'у пользователя нет фотографии',
+	'imgEmptyByHash'	=> 'фотографии по тегу <b>#{$hashtag}</b> не найдены ',
 );

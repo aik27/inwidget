@@ -1,18 +1,24 @@
 <?php
 
+// ONLY FOR OPTIONS: LOGIN AND HASHTAG:
+// IF CACHE FILE EXIST, DELETE IT OR WAIT "CACHE EXPIRATION TIME" TO APPLY CHANGES! 
+
 $CONFIG = array(
 
 	// Instagram login
 	'LOGIN' => 'fotokto_ru',
 
-	// CLIEN_ID of Instagram application
-	'CLIENT_ID' => 'bd15adcf901046049a5cc89fed0e2e23',
-
-	// Get pictures from WORLDWIDE by tag name. 
+	// Get pictures from WORLDWIDE by hashtags. 
+	// Separate hashtags by comma. For example: girl, man
 	// Use this options only if you want show pictures of other users. 
-	// Important! Profile avatar and statistic will be hidden.
+	// Profile avatar and statistic will be hidden.
 	'HASHTAG' => '',
 
+	// Specify here list of banned logins. 
+	// Photos of these users will not be displayed in widget.
+	// Separate usernames by comma. For example: mark18, kitty45
+	'bannedLogins' => '',
+		
 	// Random order of pictures [ true / false ]
 	'imgRandom' => true,
 
