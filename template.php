@@ -10,7 +10,7 @@
  * @link http://inwidget.ru
  * @copyright 2014-2017 Alexandr Kazarmshchikov
  * @author Alexandr Kazarmshchikov
- * @version 1.1.1
+ * @version 1.1.2
  * @package inWidget
  *
  */
@@ -35,7 +35,7 @@ if(!is_object($inWidget->data)) die('<b style="color:red;">Cache file contains p
 				width: <?php echo ($inWidget->width-44); ?>px;
 				<?php if($inWidget->width<160) echo 'display:none'; ?>
 			}
-			.widget .data a.image:link, .widget .data a.image:visited{
+			.widget .data a.image:link, .widget .data a.image:visited {
 				width:<?php echo $inWidget->imgWidth; ?>px;
 				height:<?php echo $inWidget->imgWidth; ?>px;
 			}
@@ -89,7 +89,6 @@ if(!is_object($inWidget->data)) die('<b style="color:red;">Cache file contains p
 		$count = $inWidget->countAvailableImages($inWidget->data->images);
 		if($count>0) {
 			if($inWidget->config['imgRandom'] === true) shuffle($inWidget->data->images);
-			//$inWidget->data->images = array_slice($inWidget->data->images,0,$inWidget->view);
 			echo '<div id="widgetData" class="data">';
 				foreach ($inWidget->data->images as $key=>$item){
 					if($inWidget->isBannedUserId($item->authorId) == true) continue;
@@ -128,45 +127,6 @@ if(!is_object($inWidget->data)) die('<b style="color:red;">Cache file contains p
 </div>
 </body>
 </html>
-<!--
-<style type='text/css'>
-	.widget {
-		width:auto;
-		max-width:100%;
-	}
-	.widget .title .text {
-		<?php if($inWidget->width<160) echo 'display:none'; ?>
-	}
-	.widget .data a.image:link, .widget .data a.image:visited{
-	}
-	.widget .data .image span {
-		width:100%;
-		height:100%;
-	}
-	.copyright {
-		width:100%;
-	}
-</style>
-<script type="text/javascript">
-	// adaptive
-	function widgetResize() {
-		var data = document.getElementById('widgetData');
-		if(data.childNodes.length-1 > 0){
-			var widthTotal = document.getElementById('widget').offsetWidth;
-			var widthElement = (widthTotal-(20+(9*<?=$inWidget->inline?>)))/<?=$inWidget->inline?>;
-			widthElement = Math.ceil(widthElement);
-			for (var i = 0; i < data.childNodes.length; i++) {
-				if(i < data.childNodes.length-1){
-					data.childNodes[i].style.width = widthElement+'px';
-					data.childNodes[i].style.height = widthElement+'px';
-				}
-			}
-		}
-	}
-	widgetResize();
-	window.addEventListener('resize', function(event){widgetResize();});
-</script>
--->
 <!-- 
 	inWidget - free Instagram widget for your site!
 	http://inwidget.ru

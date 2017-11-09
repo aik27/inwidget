@@ -358,18 +358,11 @@ class Media extends AbstractModel
      */
     protected function initPropertiesCustom($value, $prop, $arr)
     {
-
         switch ($prop) {
             case 'id':
                 $this->id = $value;
                 break;
             case 'type':
-            	$this->type = $value;
-            	break;
-            // inWidget fix
-            case '__typename':
-            	if($value == 'GraphImage') $value = 'image';
-            	if($value == 'GraphVideo') $value = 'video';
                 $this->type = $value;
                 break;
             case 'created_time':
@@ -377,6 +370,7 @@ class Media extends AbstractModel
                 break;
             case 'code':
                 $this->shortCode = $value;
+                $this->link = Endpoints::getMediaPageLink($this->shortCode);
                 break;
             case 'link':
                 $this->link = $value;
@@ -406,6 +400,7 @@ class Media extends AbstractModel
                 break;
             case 'video_views':
                 $this->videoViews = $value;
+                $this->type = static::TYPE_VIDEO;
                 break;
             case 'videos':
                 $this->videoLowResolutionUrl = $arr[$prop]['low_resolution']['url'];
@@ -427,7 +422,9 @@ class Media extends AbstractModel
                 $this->owner = Account::create($arr[$prop]);
                 break;
             case 'is_video':
-                $this->type = self::TYPE_VIDEO;
+                if ((bool)$value) {
+                    $this->type = static::TYPE_VIDEO;
+                }
                 break;
             case 'video_url':
                 $this->videoStandardResolutionUrl = $value;
@@ -450,6 +447,8 @@ class Media extends AbstractModel
                 break;
             case 'edge_media_to_comment':
                 $this->commentsCount = $arr[$prop]['count'];
+                break;
+            case 'edge_media_preview_like':
                 $this->likesCount = $arr[$prop]['count'];
                 break;
             case 'display_url':
@@ -469,12 +468,23 @@ class Media extends AbstractModel
                 $this->createdTime = (int)$value;
                 break;
             case 'display_src':
-                $images = self::getImageUrls($value);
+                $images = static::getImageUrls($value);
                 $this->imageStandardResolutionUrl = $images['standard'];
                 $this->imageLowResolutionUrl = $images['low'];
                 $this->imageHighResolutionUrl = $images['high'];
                 $this->imageThumbnailUrl = $images['thumbnail'];
-                $this->type = self::TYPE_IMAGE;
+                if (!isset($this->type)) {
+                    $this->type = static::TYPE_IMAGE;
+                }
+                break;
+            case '__typename':
+                if ($value == 'GraphImage') {
+                    $this->type = static::TYPE_IMAGE;
+                } else if ($value == 'GraphVideo') {
+                    $this->type = static::TYPE_VIDEO;
+                } else if ($value == 'GraphSidecar') {
+                    $this->type = static::TYPE_SIDECAR;
+                }
                 break;
         }
         if (!$this->ownerId && !is_null($this->owner)) {
