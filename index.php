@@ -10,7 +10,7 @@
  * @link http://inwidget.ru
  * @copyright 2014-2017 Alexandr Kazarmshchikov
  * @author Alexandr Kazarmshchikov
- * @version 1.1.0
+ * @version 1.1.1
  * @package inWidget
  * 
  */
@@ -22,7 +22,8 @@ header('Content-type: text/html; charset=utf-8');
 if(phpversion() < "5.4.0") 		die('inWidget required PHP >= <b>5.4.0</b>. Your version: '.phpversion());
 if(!extension_loaded('curl')) 	die('inWidget required <b>cURL PHP extension</b>. Please, install it or ask your hosting provider.');
 
-require_once 'plugins/instagram-php-scraper/InstagramScraper.php';
+require_once 'plugins/autoload.php';
+require_once 'plugins/InstagramScraper.php';
 require_once 'plugins/unirest-php/Unirest.php';
 require_once 'inwidget.php';
 

@@ -11,16 +11,15 @@
  * @link http://inwidget.ru
  * @copyright 2014-2017 Alexandr Kazarmshchikov
  * @author Alexandr Kazarmshchikov
- * @version 1.1.0
+ * @version 1.1.1
  * @package inWidget
  *
  */
 
-use InstagramScraper\Instagram;
-
 class inWidget {
 	public $config = array();
 	public $data = array();
+	public $api = false;
 	public $width = 260;
 	public $inline = 4;
 	public $view = 12;
@@ -52,19 +51,20 @@ class inWidget {
 		$this->checkCacheRights();
 		$this->setLang();
 		$this->setOptions();
+		$this->api = new \InstagramScraper\Instagram();
 	}
 	public function apiQuery() {
 		try {
-			$account = Instagram::getAccount($this->config['LOGIN']);
-			if($account->isPrivate) {
+			$account = $this->api->getAccount($this->config['LOGIN']);
+			if($account->isPrivate()) {
 				throw new Exception('Requested profile is private');
 			}
-			$this->data['userid'] 		= $account->id;
-			$this->data['username'] 	= $account->username;
-			$this->data['avatar'] 		= $account->profilePicUrl;
-			$this->data['posts']	 	= $account->mediaCount;
-			$this->data['followers'] 	= $account->followedByCount;
-			$this->data['following'] 	= $account->followsCount;
+			$this->data['userid'] 		= $account->getId();
+			$this->data['username'] 	= $account->getUsername();
+			$this->data['avatar'] 		= $account->getProfilePicUrl();
+			$this->data['posts']	 	= $account->getMediaCount();
+			$this->data['followers'] 	= $account->getFollowedByCount();
+			$this->data['following'] 	= $account->getFollowsCount();
 			// by hashtag
 			if(!empty($this->config['HASHTAG'])) {
 				$mediaArray = array();
@@ -73,7 +73,7 @@ class inWidget {
 					foreach ($tags as $key=>$item){
 						$item = strtolower(trim($item));
 						if(!empty($item)) {
-							$mediaArray[] = Instagram::getMediasByTag($item, $this->config['imgCount']);
+							$mediaArray[] = $this->api->getMediasByTag($item, $this->config['imgCount']);
 						}
 					}
 				}
@@ -88,26 +88,26 @@ class inWidget {
 			}
 			// by profile
 			else {
-				$medias = Instagram::getMedias($this->config['LOGIN'], $this->config['imgCount']);
+				$medias = $this->api->getMedias($this->config['LOGIN'], $this->config['imgCount']);
 			}
 			$images = array();
 			if(!empty($medias)) {
 				foreach ($medias as $key=>$item) {
-					$images[$key]['id'] 			= $item->id;
-					$images[$key]['code'] 			= $item->code;
-					$images[$key]['created'] 		= $item->createdTime;
-					$images[$key]['text'] 			= $item->caption;
-					$images[$key]['link'] 			= $item->link;
-					$images[$key]['fullsize'] 		= $item->imageHighResolutionUrl;
-					$images[$key]['large'] 			= $item->imageStandardResolutionUrl;
-					$images[$key]['small'] 			= $item->imageLowResolutionUrl;
-					$images[$key]['likesCount'] 	= $item->likesCount;
-					$images[$key]['commentsCount'] 	= $item->commentsCount;
+					$images[$key]['id'] 			= $item->getId();
+					$images[$key]['code'] 			= $item->getShortCode();
+					$images[$key]['created'] 		= $item->getCreatedTime();
+					$images[$key]['text'] 			= $item->getCaption();
+					$images[$key]['link'] 			= $item->getLink();
+					$images[$key]['fullsize'] 		= $item->getImageHighResolutionUrl();
+					$images[$key]['large'] 			= $item->getImageStandardResolutionUrl();
+					$images[$key]['small'] 			= $item->getImageLowResolutionUrl();
+					$images[$key]['likesCount'] 	= $item->getLikesCount();
+					$images[$key]['commentsCount'] 	= $item->getCommentsCount();
 					if(!empty($this->config['HASHTAG'])) {
-						$images[$key]['authorId'] = $item->ownerId;
+						$images[$key]['authorId'] = $item->getOwnerId();
 					}
 					else {
-						$images[$key]['authorId'] = $account->id;
+						$images[$key]['authorId'] = $account->getId();
 					}
 				}
 			}
@@ -123,8 +123,8 @@ class inWidget {
 		if(!empty($this->config['bannedLogins'])) {
 			foreach ($this->config['bannedLogins'] as $key=>$item){
 				try {
-					$banned = Instagram::getAccount($item['login']);
-					$this->config['bannedLogins'][$key]['id'] = $banned->id;
+					$banned = $this->api->getAccount($item['login']);
+					$this->config['bannedLogins'][$key]['id'] = $banned->getId();
 				} catch (Exception $e) {}
 			}
 			$this->data['banned'] = $this->config['bannedLogins'];
