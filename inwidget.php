@@ -11,44 +11,48 @@
  * @link http://inwidget.ru
  * @copyright 2014-2017 Alexandr Kazarmshchikov
  * @author Alexandr Kazarmshchikov
- * @version 1.1.2
+ * @version 1.1.3
  * @package inWidget
  *
  */
 
 class inWidget {
-	public $config = array();
-	public $data = array();
+	public $config = [];
+	public $data = [];
 	private $account = false;
 	private $medias = false;
 	private $api = false;
+	private $banned = [];
 	public $width = 260;
 	public $inline = 4;
 	public $view = 12;
 	public $toolbar = true;
 	public $preview = 'small';
 	public $imgWidth = 0;
-	private $cacheFile = 'cache/{$LOGIN}.txt';
-	public $lang = array();
+	public $lang = [];
 	public $langName = '';
 	private $langPath = 'lang/';
 	private $answer = '';
+	private $cacheFile = 'cache/{$LOGIN}.txt';
 	private $errors = array(
 		101=>'Can\'t get access to file <b>{$cacheFile}</b>. Check permissions.',
 		102=>'Can\'t get modification time of <b>{$cacheFile}</b>. Cache always be expired.',
-		// 103 error depricated
-		// 401 error depricated
-		// 402 error depricated
-		// 403 error depricated
-		// 404 error depricated
-		// 405 error depricated
-		// 406 error depricated
-		// 407 error depricated
+		// 103 depricated
+		// 401 depricated
+		// 402 depricated
+		// 403 depricated
+		// 404 depricated
+		// 405 depricated
+		// 406 depricated
+		// 407 depricated
 		500=>'{$answer}',
 	);
-	public function __construct() {
-		require_once 'config.php';
-		$this->config = $CONFIG;
+	public function __construct($config = []) {
+		if(!empty($config)) $this->config = $config;
+		else {
+			require_once 'config.php';
+			$this->config = $CONFIG;
+		}
 		$this->checkConfig();
 		$this->checkCacheRights();
 		$this->setLang();
@@ -63,27 +67,28 @@ class inWidget {
 			}
 			// by hashtag
 			if(!empty($this->config['HASHTAG'])) {
-				$mediaArray = array();
+				$mediaArray = [];
 				$tags = explode(',', $this->config['HASHTAG']);
 				if(!empty($tags)) {
 					foreach ($tags as $key=>$item){
 						$item = strtolower(trim($item));
 						if(!empty($item)) {
-							$mediaArray[] = $this->api->getMediasByTag($item, $this->config['imgCount']);
+							$mediaArray[] = $this->api->getMediasByTag( $item, $this->config['imgCount'] );
 						}
 					}
 				}
 				$medias = new ArrayObject();
 				if(!empty($mediaArray)) {
 					foreach ($mediaArray as $key=>$item){
-						$this->medias = (object) array_merge((array) $medias, (array) $item);
+						$medias = (object) array_merge( (array) $medias, (array) $item );
 					}
 				}
-				unset($mediaArray);
+				$this->medias = $medias;
+				unset($mediaArray,$medias);
 			}
 			// by profile
 			else {
-				$this->medias = $this->api->getMedias($this->config['LOGIN'], $this->config['imgCount']);
+				$this->medias = $this->api->getMedias( $this->config['LOGIN'], $this->config['imgCount'] );
 			}
 		} catch (Exception $e) {
 			$this->data = array();
@@ -94,13 +99,13 @@ class inWidget {
 		// Get banned ids. Ignore any errors
 		// -------------------------------------------------
 		if(!empty($this->config['bannedLogins'])) {
-			foreach ($this->config['bannedLogins'] as $key=>$item){
+			foreach ($this->config['bannedLogins'] as $key=>$item) {
 				try {
 					$banned = $this->api->getAccount($item['login']);
 					$this->config['bannedLogins'][$key]['id'] = $banned->getId();
 				} catch (Exception $e) {}
 			}
-			$this->data['banned'] = $this->config['bannedLogins'];
+			$this->banned = $this->config['bannedLogins'];
 		}
 	}
 	public function getData() {
@@ -118,7 +123,8 @@ class inWidget {
 		$data['posts']	 	= $this->account->getMediaCount();
 		$data['followers'] 	= $this->account->getFollowedByCount();
 		$data['following'] 	= $this->account->getFollowsCount();
-		$data['images']		= array();
+		$data['banned']  	= $this->banned;
+		$data['images']		= [];
 		if(!empty($this->medias)) {
 			foreach ($this->medias as $key=>$item) {
 				$data['images'][$key]['id'] 			= $item->getId();
@@ -131,17 +137,15 @@ class inWidget {
 				$data['images'][$key]['small'] 			= $item->getImageLowResolutionUrl();
 				$data['images'][$key]['likesCount'] 	= $item->getLikesCount();
 				$data['images'][$key]['commentsCount'] 	= $item->getCommentsCount();
-				if(!empty($this->config['HASHTAG'])) {
-					$data['images'][$key]['authorId'] = $item->getOwnerId();
-				}
-				else {
-					$data['images'][$key]['authorId'] = $this->account->getId();
-				}
+				$data['images'][$key]['authorId'] 		= $item->getOwnerId();
 			}
 		}
 		return $data;
 	}
 	private function getCache() {
+		if($this->config['cacheSkip'] === true) {
+			return false;
+		}
 		$mtime = @filemtime($this->cacheFile);
 		if($mtime<=0) die($this->getError(102));
 		$cacheExpTime = $mtime + ($this->config['cacheExpiration']*60*60);

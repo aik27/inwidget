@@ -10,7 +10,7 @@
  * @link http://inwidget.ru
  * @copyright 2014-2017 Alexandr Kazarmshchikov
  * @author Alexandr Kazarmshchikov
- * @version 1.1.2
+ * @version 1.1.3
  * @package inWidget
  *
  */
@@ -91,7 +91,7 @@ if(!is_object($inWidget->data)) die('<b style="color:red;">Cache file contains p
 			if($inWidget->config['imgRandom'] === true) shuffle($inWidget->data->images);
 			echo '<div id="widgetData" class="data">';
 				foreach ($inWidget->data->images as $key=>$item){
-					if($inWidget->isBannedUserId($item->authorId) == true) continue;
+					if($inWidget->isBannedUserId($item->authorId) === true) continue;
 					switch ($inWidget->preview){
 						case 'large':
 							$thumbnail = $item->large;

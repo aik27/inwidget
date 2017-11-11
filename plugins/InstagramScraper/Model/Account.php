@@ -100,7 +100,8 @@ class Account extends AbstractModel
      */
     public function getId()
     {
-        return (int)$this->id;
+    	// inWidget fix. Remove int
+        return $this->id;
     }
 
     /**
@@ -184,7 +185,8 @@ class Account extends AbstractModel
     {
         switch ($prop) {
             case 'id':
-                $this->id = (int)$value;
+            	// inWidget fix. Remove int
+                $this->id = $value;
                 break;
             case 'username':
                 $this->username = $value;

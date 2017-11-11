@@ -1,7 +1,7 @@
 <?php
 
-// ONLY FOR OPTIONS: LOGIN AND HASHTAG:
-// IF CACHE FILE EXIST, DELETE IT OR WAIT "CACHE EXPIRATION TIME" TO APPLY CHANGES! 
+// THIS SCRIPT USE CACHE TO REDUCE HIGH LOAD. SO IF CACHE FILE EXIST -
+// DELETE IT, WAIT "CACHE EXPIRATION TIME" OR USE "cacheSkip" OPTION TO APPLY CHANGES!
 
 $CONFIG = array(
 
@@ -27,12 +27,17 @@ $CONFIG = array(
 
 	// Cache expiration time (hours)
 	'cacheExpiration' => 6,
+		
+	// Skip cache data [ true / false ]
+	// If this is true, requests to Instagram API will be sending every time.
+	// Warning! Use true option only for debug.
+	'cacheSkip' => false,
 
 	// Default language [ ru / en ] or something else from lang directory.
 	'langDefault' => 'ru',
 
 	// Language auto-detection [ true / false ]
-	// This option may no effect if you set language by $_GET variable
+	// This option may no effect if you set language by $_GET variable.
 	'langAuto' => false,
 
 );
