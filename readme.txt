@@ -8,7 +8,7 @@
  *
  * @link http://inwidget.ru
  * @author Alexandr Kazarmshchikov
- * @version 1.1.3
+ * @version 1.1.4
  * @package inWidget
  *
  */
@@ -50,6 +50,7 @@
 * imgCount – сколько фотографий запрашивать из Instagram. Влияет на размер кэша.
 * cacheExpiration – через сколько часов обновлять кэш.
 * cacheSkip – не использовать кэш [ true / false ]. Если присвоить true, то кэш будет проигнорирован и запросы к API будут отправляться при каждой загрузке виджета. Используйте эту опцию только для отладки.
+* skinDefault - скин виджета по умолчанию [default / modern-blue / modern-green / modern-red / modern-orange / modern-grey / modern-black / modern-violet / modern-yellow]
 * langDefault - язык виджета по умолчанию [ ru / en ]
 * langAuto - автоматически определять язык пользователя [ true / false ]
 
@@ -64,19 +65,19 @@
 Ещё примеры вставки с различным отображением виджета: 
 
 <!-- Без профиля -->
-<iframe src='/inwidget/index.php?toolbar=false' scrolling='no' frameborder='no' style='border:none;width:260px;height:320px;overflow:hidden;'></iframe>
+<iframe src='/inwidget/index.php?toolbar=false' data-inwidget scrolling='no' frameborder='no' style='border:none;width:260px;height:320px;overflow:hidden;'></iframe>
 
 <!-- Мини 1 -->
-<iframe src='/inwidget/index.php?width=100&inline=2&view=12&toolbar=false' scrolling='no' frameborder='no' style='border:none;width:100px;height:320px;overflow:hidden;'></iframe>
+<iframe src='/inwidget/index.php?width=100&inline=2&view=12&toolbar=false' data-inwidget scrolling='no' frameborder='no' style='border:none;width:100px;height:320px;overflow:hidden;'></iframe>
 
 <!-- Мини 2 -->
-<iframe src='/inwidget/index.php?width=100&inline=1&view=3&toolbar=false' scrolling='no' frameborder='no' style='border:none;width:100px;height:320px;overflow:hidden;'></iframe>
+<iframe src='/inwidget/index.php?width=100&inline=1&view=3&toolbar=false' data-inwidget scrolling='no' frameborder='no' style='border:none;width:100px;height:320px;overflow:hidden;'></iframe>
 
 <!-- Горизонтальная ориентация -->
-<iframe src='/inwidget/index.php?width=800&inline=7&view=14&toolbar=false' scrolling='no' frameborder='no' style='border:none;width:800px;height:295px;overflow:hidden;'></iframe>
+<iframe src='/inwidget/index.php?width=800&inline=7&view=14&toolbar=false' data-inwidget scrolling='no' frameborder='no' style='border:none;width:800px;height:295px;overflow:hidden;'></iframe>
 
 <!-- Крупные preview -->
-<iframe src='/inwidget/index.php?width=800&inline=3&view=9&toolbar=false&preview=large' scrolling='no' frameborder='no' style='border:none;width:800px;height:850px;overflow:hidden;'></iframe> 
+<iframe src='/inwidget/index.php?width=800&inline=3&view=9&toolbar=false&preview=large' data-inwidget scrolling='no' frameborder='no' style='border:none;width:800px;height:850px;overflow:hidden;'></iframe> 
 
 // ----------------------------------------
 // Точная настройка отображения виджета:
@@ -91,10 +92,26 @@ width – ширина виджета (по умолчанию 260px);
 inline – количество фотографий в строке (по умолчанию 4 шт.);
 view – сколько фотографий отображать в виджете (по умолчанию 12 шт., максимально 30 шт., можно исправить в config.php);
 toolbar – отобразить тулбар с аватаркой и статистикой (значения true/false, по умолчанию true);
-preview – размер и качество изображений (small – маленькие до 320px, large – большие до 640px, fullsize – полноразмерые, по умолчанию стоит small)
+preview – размер и качество изображений (small – маленькие до 320px, large – большие до 640px, fullsize – полноразмерые, по умолчанию стоит large)
 lang – язык виджета (значения ru/en, по умолчанию берутся настройки из config.php). Приоритет этого параметра выше чем для настроек в config.php.
+skin – скин виджета (значения default / modern-blue / modern-green / modern-red / modern-orange / modern-grey / modern-black / modern-violet / modern-yellow). По умолчанию default. Приоритет этого параметра выше чем для настроек в config.php.
+adaptive - адаптивный режим (значения true / false, по умолчанию false). Виджет будет автоматически подстраиваться под размеры блока или окна браузера.
 
 При изменении ширины или количества фотографий не забудьте изменить размер iframe. 
+
+// ----------------------------------------
+// Как сделать виджет адаптивным?
+// ----------------------------------------
+
+Добавьте GET переменную "adaptive" при обращении к скрипту виджета.
+
+Пример: /inwidget/index.php?adaptive=true
+
+Переменной необходимо присвоить значение true. После этого виджет будет автоматически подстраиваться под размеры блока или окна браузера. 
+При этом GET параметр width будет проигнорирован. Параметр inline будет иметь эффект при ширине виджета более 400px.
+Возможность актуальна для версии >= 1.1.4 
+
+Посмотреть демонстрацию работы адаптивного режима: http://inwidget.ru/adaptive.php
 
 // ----------------------------------------
 // Коды ошибок:
@@ -120,6 +137,15 @@ lang – язык виджета (значения ru/en, по умолчани�
 // ----------------------------------------
 // История версий:
 // ----------------------------------------
+
+inWidget-1.1.4
+Дата: 28 ноября 2017 г.
+
+* Добавлен адаптивный режим.
+* Добавлена GET переменная adaptive ( true / false, по умолчанию false ), которая позволяет включить адаптивный режим при обращении к скрипту.
+* Добавлены скины: modern-blue, modern-green, modern-red, modern-orange, modern-grey, modern-black, modern-violet, modern-yellow.
+* Добавлен параметр skinDefault в файл config.php. Позволяет задать скин по умолчанию.
+* Добавлена GET переменная skin. Позволяет переопределить скин виджета при обращении к скрипту.
 
 inWidget-1.1.3
 Дата: 11 ноября 2017 г.

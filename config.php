@@ -24,7 +24,7 @@ $CONFIG = array(
 
 	// How many pictures widget will get from Instagram?
 	'imgCount' => 30,
-
+		
 	// Cache expiration time (hours)
 	'cacheExpiration' => 6,
 		
@@ -32,6 +32,20 @@ $CONFIG = array(
 	// If this is true, requests to Instagram API will be sending every time.
 	// Warning! Use true option only for debug.
 	'cacheSkip' => false,
+		
+	/* Default skin. 
+	 * Possible values:
+		default
+		modern-blue
+		modern-green
+		modern-red
+		modern-orange
+		modern-grey
+		modern-black
+		modern-violet
+		modern-yellow
+	 * This option may no effect if you set skin by $_GET variable */
+	'skinDefault' => 'default',
 
 	// Default language [ ru / en ] or something else from lang directory.
 	'langDefault' => 'ru',

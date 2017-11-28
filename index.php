@@ -10,7 +10,7 @@
  * @link http://inwidget.ru
  * @copyright 2014-2017 Alexandr Kazarmshchikov
  * @author Alexandr Kazarmshchikov
- * @version 1.1.3
+ * @version 1.1.4
  * @package inWidget
  * 
  */
@@ -25,8 +25,10 @@ if(!extension_loaded('curl')) 	die('inWidget required <b>cURL PHP extension</b>.
 require_once 'plugins/autoload.php';
 require_once 'plugins/InstagramScraper.php';
 require_once 'plugins/unirest-php/Unirest.php';
-
 require_once 'inwidget.php';
+
+// Options may change through class constructor. For example: 
+// $inWidget = new inWidget($config);
 
 $inWidget = new inWidget();
 $inWidget->getData();

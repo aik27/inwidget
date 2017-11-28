@@ -11,7 +11,7 @@
  * @link http://inwidget.ru
  * @copyright 2014-2017 Alexandr Kazarmshchikov
  * @author Alexandr Kazarmshchikov
- * @version 1.1.3
+ * @version 1.1.4
  * @package inWidget
  *
  */
@@ -27,14 +27,27 @@ class inWidget {
 	public $inline = 4;
 	public $view = 12;
 	public $toolbar = true;
-	public $preview = 'small';
+	public $adaptive = false;
+	public $preview = 'large';
 	public $imgWidth = 0;
+	public $skinName = 'default';
 	public $lang = [];
 	public $langName = '';
 	private $langPath = 'lang/';
 	private $answer = '';
 	private $cacheFile = 'cache/{$LOGIN}.txt';
-	private $errors = array(
+	private $skinAvailable = [
+		'default',
+		'modern-blue',
+		'modern-green',
+		'modern-red',
+		'modern-orange',
+		'modern-grey',
+		'modern-black',
+		'modern-violet',
+		'modern-yellow',
+	];
+	private $errors = [
 		101=>'Can\'t get access to file <b>{$cacheFile}</b>. Check permissions.',
 		102=>'Can\'t get modification time of <b>{$cacheFile}</b>. Cache always be expired.',
 		// 103 depricated
@@ -46,7 +59,8 @@ class inWidget {
 		// 406 depricated
 		// 407 depricated
 		500=>'{$answer}',
-	);
+	];
+	
 	public function __construct($config = []) {
 		if(!empty($config)) $this->config = $config;
 		else {
@@ -56,6 +70,7 @@ class inWidget {
 		$this->checkConfig();
 		$this->checkCacheRights();
 		$this->setLang();
+		$this->setSkin();
 		$this->setOptions();
 		$this->api = new \InstagramScraper\Instagram();
 	}
@@ -209,6 +224,12 @@ class inWidget {
 		}
 		$this->lang = $LANG;
 	}
+	public function setSkin($name = ''){
+		if(!empty($name) AND in_array($name, $this->skinAvailable, true)){
+			$this->skinName = $name;
+		}
+		else $this->skinName = $this->config['skinDefault'];
+	}
 	public function setOptions() {
 		$this->width -= 2;
 		if(isset($_GET['width']) AND (int)$_GET['width']>0)
@@ -219,12 +240,16 @@ class inWidget {
 			$this->view = $_GET['view'];
 		if(isset($_GET['toolbar']) AND $_GET['toolbar'] == 'false' OR !empty($this->config['HASHTAG']))
 			$this->toolbar = false;
+		if(isset($_GET['adaptive']) AND $_GET['adaptive'] == 'true')
+			$this->adaptive = true;
 		if(isset($_GET['preview']))
 			$this->preview = $_GET['preview'];
 		if($this->width>0)
 			$this->imgWidth = round(($this->width-(17+(9*$this->inline)))/$this->inline);
 		if(isset($_GET['lang']))
 			$this->setLang($_GET['lang']);
+		if(isset($_GET['skin']))
+			$this->setSkin($_GET['skin']);
 	}
 	public function isBannedUserId($id) {
 		if(!empty($this->data->banned)) {
