@@ -6,7 +6,8 @@
 				width: -moz-calc((100% - (5px + (9px * '.$inLine.'))) / '.$inLine.');
 				width: -ms-calc((100% - (5px + (9px * '.$inLine.'))) / '.$inLine.');
 				width: calc((100% - (5px + (9px * '.$inLine.'))) / '.$inLine.');
-		}';
+			}
+		';
 	}
 	if(!isset($_GET['inline']) AND !isset($_GET['view'])) {
 		$inWidget->inline = 6;
@@ -68,10 +69,10 @@
 	}
 	$(document).ready(function(){
 		setImagesDimensions();
-		setParentDimensions()
+		setParentDimensions();
 		$(window).resize(function(){
 			setImagesDimensions();
-			setParentDimensions()
+			setParentDimensions();
 		});
 	});
 </script>
