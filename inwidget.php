@@ -60,7 +60,6 @@ class inWidget {
 		// 407 depricated
 		500=>'{$answer}',
 	];
-	
 	public function __construct($config = []) {
 		if(!empty($config)) $this->config = $config;
 		else {
@@ -139,6 +138,7 @@ class inWidget {
 		$data['followers'] 	= $this->account->getFollowedByCount();
 		$data['following'] 	= $this->account->getFollowsCount();
 		$data['banned']  	= $this->banned;
+		$data['tags']  		= $this->config['HASHTAG'];
 		$data['images']		= [];
 		if(!empty($this->medias)) {
 			foreach ($this->medias as $key=>$item) {
@@ -180,6 +180,7 @@ class inWidget {
 	private function checkConfig() {
 		if(!empty($this->config['LOGIN'])) {
 			$this->config['LOGIN'] = strtolower(trim($this->config['LOGIN']));
+			$cacheFileName = md5($this->config['LOGIN']);
 		}
 		else die('LOGIN required in config.php');
 		if(!empty($this->config['langDefault'])) {
@@ -189,8 +190,9 @@ class inWidget {
 		if(!empty($this->config['HASHTAG'])) {
 			$this->config['HASHTAG'] = trim($this->config['HASHTAG']);
 			$this->config['HASHTAG'] = str_replace('#','',$this->config['HASHTAG']);
+			$cacheFileName = md5($this->config['HASHTAG']);
 		}
-		$this->cacheFile = str_replace('{$LOGIN}', $this->config['LOGIN'], $this->cacheFile);
+		$this->cacheFile = str_replace('{$LOGIN}', $cacheFileName, $this->cacheFile);
 		if(!empty($this->config['bannedLogins'])) {
 			$logins = explode(',', $this->config['bannedLogins']);
 			if(!empty($logins)) {
