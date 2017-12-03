@@ -9,9 +9,9 @@
  * http://inwidget.ru/MIT-license.txt
  *
  * @link http://inwidget.ru
- * @copyright 2014-2017 Alexandr Kazarmshchikov
+ * @copyright 2014-2018 Alexandr Kazarmshchikov
  * @author Alexandr Kazarmshchikov
- * @version 1.1.4
+ * @version 1.1.5
  * @package inWidget
  *
  */
@@ -34,6 +34,7 @@ class inWidget {
 	public $lang = [];
 	public $langName = '';
 	private $langPath = 'lang/';
+	private $langAvailable = ['ru','en'];
 	private $answer = '';
 	private $cacheFile = 'cache/{$LOGIN}.txt';
 	private $skinAvailable = [
@@ -190,7 +191,7 @@ class inWidget {
 		if(!empty($this->config['HASHTAG'])) {
 			$this->config['HASHTAG'] = trim($this->config['HASHTAG']);
 			$this->config['HASHTAG'] = str_replace('#','',$this->config['HASHTAG']);
-			$cacheFileName = md5($this->config['HASHTAG']);
+			$cacheFileName = md5($this->config['HASHTAG'].'_tags');
 		}
 		$this->cacheFile = str_replace('{$LOGIN}', $cacheFileName, $this->cacheFile);
 		if(!empty($this->config['bannedLogins'])) {
@@ -213,7 +214,7 @@ class inWidget {
 	public function setLang($name = '') {
 		if(empty($name) AND $this->config['langAuto'] === true AND !empty($_SERVER['HTTP_ACCEPT_LANGUAGE']))
 			$name = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
-		if(!empty($name)){
+		if(!empty($name) AND in_array($name, $this->langAvailable, true)){
 			$name = strtolower($name);
 			if(file_exists($this->langPath.$name.'.php')) {
 				$this->langName = $name;

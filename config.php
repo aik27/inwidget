@@ -29,7 +29,7 @@ $CONFIG = array(
 	'cacheExpiration' => 6,
 		
 	// Skip cache data [ true / false ]
-	// If this is true, requests to Instagram API will be sending every time.
+	// Requests to Instagram API will be sending every time.
 	// Warning! Use true option only for debug.
 	'cacheSkip' => false,
 		
