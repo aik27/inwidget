@@ -8,7 +8,7 @@
  *
  * @link http://inwidget.ru
  * @author Alexandr Kazarmshchikov
- * @version 1.1.5
+ * @version 1.1.6
  * @package inWidget
  *
  */
@@ -144,6 +144,13 @@ adaptive - адаптивный режим (значения true / false, по 
 // ----------------------------------------
 // История версий:
 // ----------------------------------------
+
+inWidget-1.1.6
+Дата: 05 декабря 2017 г.
+
+* Обновлена библиотека instagram-php-scraper до версии 0.8.7.
+* Внесены дополнительные исправлена в функцию getMediasByTag библиотеки instagram-php-scraper.
+* Внесены небольшие исправления в скин default
 
 inWidget-1.1.5
 Дата: 03 декабря 2017 г.
