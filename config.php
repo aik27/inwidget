@@ -33,6 +33,10 @@ $CONFIG = array(
 	// Warning! Use true option only for debug.
 	'cacheSkip' => false,
 		
+	// Full path to cache file [ {$fileName} mask required ]
+	// Uncomment line below if you want change default directory or file extension.
+	#'cacheFile' => __DIR__.'/cache/{$fileName}.txt',
+		
 	/* Default skin. 
 	 * Possible values:
 		default

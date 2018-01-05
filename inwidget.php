@@ -11,7 +11,7 @@
  * @link http://inwidget.ru
  * @copyright 2014-2018 Alexandr Kazarmshchikov
  * @author Alexandr Kazarmshchikov
- * @version 1.1.6
+ * @version 1.1.7
  * @package inWidget
  *
  */
@@ -23,6 +23,7 @@ class inWidget {
 	private $medias = false;
 	private $api = false;
 	private $banned = [];
+	private $answer = '';
 	public $width = 260;
 	public $inline = 4;
 	public $view = 12;
@@ -33,11 +34,10 @@ class inWidget {
 	public $skinName = 'default';
 	public $lang = [];
 	public $langName = '';
-	private $langPath = 'lang/';
-	private $langAvailable = ['ru','en'];
-	private $answer = '';
-	private $cacheFile = 'cache/{$LOGIN}.txt';
-	private $skinAvailable = [
+	public $langAvailable = ['ru','en'];
+	public $langPath = 'lang/';
+	public $cacheFile = 'cache/{$fileName}.txt';
+	public $skinAvailable = [
 		'default',
 		'modern-blue',
 		'modern-green',
@@ -179,21 +179,31 @@ class inWidget {
 		file_put_contents($this->cacheFile,$data,LOCK_EX);
 	}
 	private function checkConfig() {
+		$this->langPath = __DIR__.'/'.$this->langPath; // PHP < 5.6 fix
+		$this->cacheFile = __DIR__.'/'.$this->cacheFile; // PHP < 5.6 fix
 		if(!empty($this->config['LOGIN'])) {
 			$this->config['LOGIN'] = strtolower(trim($this->config['LOGIN']));
 			$cacheFileName = md5($this->config['LOGIN']);
 		}
-		else die('LOGIN required in config.php');
+		else die('inWidget: LOGIN required in config.php');
 		if(!empty($this->config['langDefault'])) {
 			$this->config['langDefault'] = strtolower(trim($this->config['langDefault']));
 		}
-		else die('langDefault required in config.php');
+		else die('inWidget: langDefault required in config.php');
 		if(!empty($this->config['HASHTAG'])) {
 			$this->config['HASHTAG'] = trim($this->config['HASHTAG']);
 			$this->config['HASHTAG'] = str_replace('#','',$this->config['HASHTAG']);
 			$cacheFileName = md5($this->config['HASHTAG'].'_tags');
 		}
-		$this->cacheFile = str_replace('{$LOGIN}', $cacheFileName, $this->cacheFile);
+		if(!empty($this->config['cacheFile'])) {
+			$find = strpos($this->config['cacheFile'],'{$fileName}');
+			if($find !== false) {
+				$this->cacheFile = $this->config['cacheFile'];
+			}
+			else die('inWidget: {$fileName} required in context of cacheFile option in config.php');
+			unset($find);
+		}
+		$this->cacheFile = str_replace('{$fileName}', $cacheFileName, $this->cacheFile);
 		if(!empty($this->config['bannedLogins'])) {
 			$logins = explode(',', $this->config['bannedLogins']);
 			if(!empty($logins)) {

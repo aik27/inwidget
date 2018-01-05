@@ -10,7 +10,7 @@
  * @link http://inwidget.ru
  * @copyright 2014-2018 Alexandr Kazarmshchikov
  * @author Alexandr Kazarmshchikov
- * @version 1.1.6
+ * @version 1.1.7
  * @package inWidget
  *
  */

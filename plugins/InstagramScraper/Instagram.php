@@ -12,6 +12,7 @@ use InstagramScraper\Model\Location;
 use InstagramScraper\Model\Media;
 use InstagramScraper\Model\Story;
 use InstagramScraper\Model\Tag;
+use InstagramScraper\Model\UserStories;
 use phpFastCache\CacheManager;
 use Unirest\Request;
 
@@ -399,6 +400,8 @@ class Instagram
     }
 
     /**
+     * We work only on https in this case if we have same cookies on Secure and not - we will choice Secure cookie
+     *
      * @param string $rawCookies
      *
      * @return array
@@ -409,14 +412,26 @@ class Instagram
             $rawCookies = [$rawCookies];
         }
 
-        $cookies = [];
-        foreach ($rawCookies as $c) {
-            $c = explode(';', $c)[0];
-            $parts = explode('=', $c);
+        $not_secure_cookies = [];
+        $secure_cookies = [];
+
+        foreach ($rawCookies as $cookie) {
+            $cookie_array = 'not_secure_cookies';
+            $cookie_parts = explode(';', $cookie);
+            foreach ($cookie_parts as $cookie_part) {
+                if (trim($cookie_part) == 'Secure') {
+                    $cookie_array = 'secure_cookies';
+                    break;
+                }
+            }
+            $value = array_shift($cookie_parts);
+            $parts = explode('=', $value);
             if (sizeof($parts) >= 2 && !is_null($parts[1])) {
-                $cookies[$parts[0]] = $parts[1];
+                ${$cookie_array}[$parts[0]] = $parts[1];
             }
         }
+
+        $cookies = $secure_cookies + $not_secure_cookies;
         return $cookies;
     }
 
@@ -554,68 +569,68 @@ class Instagram
      */
     public function getMediasByTag($tag, $count = 12, $maxId = '', $minTimestamp = null)
     {
-        $index = 0;
-        $medias = [];
-        $mediaIds = [];
-        $hasNextPage = true;
-        while ($index < $count && $hasNextPage) {
-            $response = Request::get(Endpoints::getMediasJsonByTagLink($tag, $maxId),
-                $this->generateHeaders($this->userSession));
-            if ($response->code !== 200) {
-                throw new InstagramException('Response code is ' . $response->code . '. Body: ' . static::getErrorBody($response->body) . ' Something went wrong. Please report issue.');
-            }
-            $cookies = static::parseCookies($response->headers['Set-Cookie']);
-            $this->userSession['csrftoken'] = $cookies['csrftoken'];
-            $arr = json_decode($response->raw_body, true, 512, JSON_BIGINT_AS_STRING);
-            if (!is_array($arr)) {
-                throw new InstagramException('Response decoding failed. Returned data corrupted or this library outdated. Please report issue');
-            }
-            if (empty($arr['tag']['media']['count'])) {
-                return [];
-            }
-            $nodes = $arr['tag']['media']['nodes'];
-            // inWidget fix
-            $nodesTop = $arr['tag']['top_posts']['nodes'];
-            $first = false;
-            if ($maxId == '') {
-            	$first = true;
-            }
-            if($first == true AND !empty($nodesTop)){
-            	if (count($nodes) < $count AND count($nodesTop) > count($nodes)) {
-            		$tmp = [];
-            		foreach ($nodesTop as $top) {
-            			$tmp[$top['id']] = $top;
-            			foreach ($nodes as $item) {
-            				if(key_exists($item['id'], $tmp)) continue;
-            				$tmp[$item['id']] = $item;
-            			}
-            		}
-            		$nodes = $tmp;
-            		unset($tmp);
-            	}
-            }
-            foreach ($nodes as $mediaArray) {
-                if ($index === $count) {
-                    return $medias;
-                }
-                $media = Media::create($mediaArray);
-                if (in_array($media->getId(), $mediaIds)) {
-                    return $medias;
-                }
-                if (isset($minTimestamp) && $media->getCreatedTime() < $minTimestamp) {
-                    return $medias;
-                }
-                $mediaIds[] = $media->getId();
-                $medias[] = $media;
-                $index++;
-            }
-            if (empty($nodes)) {
-                return $medias;
-            }
-            $maxId = $arr['tag']['media']['page_info']['end_cursor'];
-            $hasNextPage = $arr['tag']['media']['page_info']['has_next_page'];
-        }
-        return $medias;
+    	$index = 0;
+    	$medias = [];
+    	$mediaIds = [];
+    	$hasNextPage = true;
+    	while ($index < $count && $hasNextPage) {
+    		$response = Request::get(Endpoints::getMediasJsonByTagLink($tag, $maxId),
+    				$this->generateHeaders($this->userSession));
+    		if ($response->code !== 200) {
+    			throw new InstagramException('Response code is ' . $response->code . '. Body: ' . static::getErrorBody($response->body) . ' Something went wrong. Please report issue.');
+    		}
+    		$cookies = static::parseCookies($response->headers['Set-Cookie']);
+    		$this->userSession['csrftoken'] = $cookies['csrftoken'];
+    		$arr = json_decode($response->raw_body, true, 512, JSON_BIGINT_AS_STRING);
+    		if (!is_array($arr)) {
+    			throw new InstagramException('Response decoding failed. Returned data corrupted or this library outdated. Please report issue');
+    		}
+    		if (empty($arr['graphql']['hashtag']['edge_hashtag_to_media']['count'])) {
+    			return [];
+    		}
+    		$nodes = $arr['graphql']['hashtag']['edge_hashtag_to_media']['edges'];
+    		// inWidget fix
+    		$nodesTop = $arr['graphql']['hashtag']['edge_hashtag_to_top_posts']['edges'];
+    		$first = false;
+    		if ($maxId == '') {
+    			$first = true;
+    		}
+    		if($first == true AND !empty($nodesTop)){
+    			if (count($nodes) < $count AND count($nodesTop) > count($nodes)) {
+    				$tmp = [];
+    				foreach ($nodesTop as $top) {
+    					$tmp[$top['id']] = $top;
+    					foreach ($nodes as $item) {
+    						if(key_exists($item['id'], $tmp)) continue;
+    						$tmp[$item['id']] = $item;
+    					}
+    				}
+    				$nodes = $tmp;
+    				unset($tmp);
+    			}
+    		}
+    		foreach ($nodes as $mediaArray) {
+    			if ($index === $count) {
+    				return $medias;
+    			}
+    			$media = Media::create($mediaArray['node']);
+    			if (in_array($media->getId(), $mediaIds)) {
+    				return $medias;
+    			}
+    			if (isset($minTimestamp) && $media->getCreatedTime() < $minTimestamp) {
+    				return $medias;
+    			}
+    			$mediaIds[] = $media->getId();
+    			$medias[] = $media;
+    			$index++;
+    		}
+    		if (empty($nodes)) {
+    			return $medias;
+    		}
+    		$maxId = $arr['graphql']['hashtag']['edge_hashtag_to_media']['page_info']['end_cursor'];
+    		$hasNextPage = $arr['graphql']['hashtag']['edge_hashtag_to_media']['page_info']['has_next_page'];
+    	}
+    	return $medias;
     }
 
     /**
@@ -927,23 +942,32 @@ class Instagram
         return $accounts;
     }
 
-    public function getStories()
+    /**
+     * @param array $reel_ids - array of instagram user ids
+     * @return array
+     * @throws InstagramException
+     */
+    public function getStories($reel_ids = null)
     {
-        $response = Request::get(Endpoints::getUserStoriesLink(),
-            $this->generateHeaders($this->userSession));
-
-        if ($response->code !== 200) {
-            throw new InstagramException('Response code is ' . $response->code . '. Body: ' . static::getErrorBody($response->body) . ' Something went wrong. Please report issue.');
-        }
-
-        $jsonResponse = json_decode($response->raw_body, true, 512, JSON_BIGINT_AS_STRING);
-        if (empty($jsonResponse['data']['user']['feed_reels_tray']['edge_reels_tray_to_reel']['edges'])) {
-            return [];
-        }
-
         $variables = ['precomposed_overlay' => false, 'reel_ids' => []];
-        foreach ($jsonResponse['data']['user']['feed_reels_tray']['edge_reels_tray_to_reel']['edges'] as $edge) {
-            $variables['reel_ids'][] = $edge['node']['id'];
+        if (empty($reel_ids)) {
+            $response = Request::get(Endpoints::getUserStoriesLink(),
+                $this->generateHeaders($this->userSession));
+
+            if ($response->code !== 200) {
+                throw new InstagramException('Response code is ' . $response->code . '. Body: ' . static::getErrorBody($response->body) . ' Something went wrong. Please report issue.');
+            }
+
+            $jsonResponse = json_decode($response->raw_body, true, 512, JSON_BIGINT_AS_STRING);
+            if (empty($jsonResponse['data']['user']['feed_reels_tray']['edge_reels_tray_to_reel']['edges'])) {
+                return [];
+            }
+
+            foreach ($jsonResponse['data']['user']['feed_reels_tray']['edge_reels_tray_to_reel']['edges'] as $edge) {
+                $variables['reel_ids'][] = $edge['node']['id'];
+            }
+        } else {
+            $variables['reel_ids'] = $reel_ids;
         }
 
         $response = Request::get(Endpoints::getStoriesLink($variables),
@@ -961,25 +985,28 @@ class Instagram
 
         $stories = [];
         foreach ($jsonResponse['data']['reels_media'] as $user) {
-            $Story = Story::create();
-            $Story->setOwner(Account::create($user['user']));
+            $UserStories = UserStories::create();
+            $UserStories->setOwner(Account::create($user['user']));
             foreach ($user['items'] as $item) {
-                $Story->addStory(Media::create($item));
+                $UserStories->addStory(Story::create($item));
             }
-            $stories[] = $Story;
+            $stories[] = $UserStories;
         }
         return $stories;
     }
 
     /**
      * @param bool $force
+     * @param bool $support_two_step_verification
+     *
+     * $support_two_step_verification true works only in cli mode - just run login in cli mode - save cookie to file and use in any mode
      *
      * @throws InstagramAuthException
      * @throws InstagramException
      *
      * @return array
      */
-    public function login($force = false)
+    public function login($force = false, $support_two_step_verification = false)
     {
         if ($this->sessionUsername == null || $this->sessionPassword == null) {
             throw new InstagramAuthException("User credentials not provided");
@@ -1003,7 +1030,9 @@ class Instagram
                 ['username' => $this->sessionUsername, 'password' => $this->sessionPassword]);
 
             if ($response->code !== 200) {
-                if ((is_string($response->code) || is_numeric($response->code)) && is_string($response->body)) {
+                if ($response->code === 400 && isset($response->body->message) && $response->body->message == 'checkpoint_required' && $support_two_step_verification) {
+                    $response = $this->verifyTwoStep($response, $cookies);
+                } elseif ((is_string($response->code) || is_numeric($response->code)) && is_string($response->body)) {
                     throw new InstagramAuthException('Response code is ' . $response->code . '. Body: ' . $response->body . ' Something went wrong. Please report issue.');
                 } else {
                     throw new InstagramAuthException('Something went wrong. Please report issue.');
@@ -1026,6 +1055,87 @@ class Instagram
         }
 
         return $this->generateHeaders($this->userSession);
+    }
+
+    private function verifyTwoStep($response, $cookies)
+    {
+        $new_cookies = static::parseCookies($response->headers['Set-Cookie']);
+        $cookies = array_merge($cookies, $new_cookies);
+        $cookie_string = '';
+        foreach ($cookies as $name => $value) {
+            $cookie_string .= $name . "=" . $value . "; ";
+        }
+        $headers = [
+            'cookie' => $cookie_string,
+            'referer' => Endpoints::LOGIN_URL,
+            'x-csrftoken' => $cookies['csrftoken']
+        ];
+
+        $url = Endpoints::BASE_URL . $response->body->checkpoint_url;
+        $response = Request::get($url, $headers);
+        if (preg_match('/window._sharedData\s\=\s(.*?)\;<\/script>/', $response->raw_body, $matches)) {
+            $data = json_decode($matches[1], true, 512, JSON_BIGINT_AS_STRING);
+            if (!empty($data['entry_data']['Challenge'][0]['extraData']['content'][3]['fields'][0]['values'])) {
+                $choices = $data['entry_data']['Challenge'][0]['extraData']['content'][3]['fields'][0]['values'];
+            } elseif (!empty($data['entry_data']['Challenge'][0]['fields'])) {
+                $fields = $data['entry_data']['Challenge'][0]['fields'];
+                if (!empty($fields['email'])) {
+                    $choices[] = ['label' => 'Email: ' . $fields['email'], 'value' => 1];
+                }
+                if (!empty($fields['phone_number'])) {
+                    $choices[] = ['label' => 'Phone: ' . $fields['phone_number'], 'value' => 0];
+                }
+            }
+
+            if (!empty($choices)) {
+                if (count($choices) > 1) {
+                    $possible_values = [];
+                    print "Select where to send security code\n";
+                    foreach ($choices as $choice) {
+                        print $choice['label'] . " - " . $choice['value'] . "\n";
+                        $possible_values[$choice['value']] = true;
+                    }
+
+                    $selected_choice = null;
+                    while (empty($possible_values[$selected_choice])) {
+                        if ($selected_choice) {
+                            print "Wrong choice. Try again\n";
+                        }
+                        print "Your choice: ";
+                        $selected_choice = trim(fgets(STDIN));
+                    }
+                } else {
+                    print "Message with security code sent to: " . $choices[0]['label'] . "\n";
+                    $selected_choice = $choices[0]['value'];
+                }
+                $response = Request::post($url, $headers, ['choice' => $selected_choice]);
+            }
+        }
+
+        if (!preg_match('/name="security_code"/', $response->raw_body, $matches)) {
+            throw new InstagramAuthException('Something went wrong when try two step verification. Please report issue.');
+        }
+
+        $security_code = null;
+        while (strlen($security_code) != 6 && !is_int($security_code)) {
+            if ($security_code) {
+                print "Wrong security code\n";
+            }
+            print "Enter security code: ";
+            $security_code = trim(fgets(STDIN));
+        }
+        $post_data = [
+            'csrfmiddlewaretoken' => $cookies['csrftoken'],
+            'verify' => 'Verify Account',
+            'security_code' => $security_code,
+        ];
+
+        $response = Request::post($url, $headers, $post_data);
+        if ($response->code !== 200) {
+            throw new InstagramAuthException('Something went wrong when try two step verification and enter security code. Please report issue.');
+        }
+
+        return $response;
     }
 
     /**
@@ -1064,4 +1174,42 @@ class Instagram
         $cachedString->set($this->userSession);
     }
 
+    /**
+     * @param array $config
+     */
+    public static function setProxy(array $config)
+    {
+        $defaultConfig = [
+            'port'    => false,
+            'tunnel'  => false,
+            'address' => false,
+            'type'    => CURLPROXY_HTTP,
+            'timeout' => false,
+            'auth' => [
+                'user' => '',
+                'pass' => '',
+                'method' => CURLAUTH_BASIC
+            ],
+        ];
+
+        $config = array_replace($defaultConfig, $config);
+
+        Request::proxy($config['address'], $config['port'], $config['type'], $config['tunnel']);
+
+        if (isset($config['auth'])) {
+            Request::proxyAuth($config['auth']['user'], $config['auth']['pass'], $config['auth']['method']);
+        }
+
+        if (isset($config['timeout'])) {
+            Request::timeout((int)$config['timeout']);
+        }
+    }
+
+    /**
+     * Disable proxy for all requests
+     */
+    public static function disableProxy()
+    {
+        Request::proxy('');
+    }
 }
