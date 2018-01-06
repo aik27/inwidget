@@ -11,7 +11,7 @@
  * @link http://inwidget.ru
  * @copyright 2014-2018 Alexandr Kazarmshchikov
  * @author Alexandr Kazarmshchikov
- * @version 1.1.7
+ * @version 1.1.8
  * @package inWidget
  *
  */
@@ -31,12 +31,15 @@ class inWidget {
 	public $adaptive = false;
 	public $preview = 'large';
 	public $imgWidth = 0;
-	public $skinName = 'default';
+	public $skipGET = false;
 	public $lang = [];
 	public $langName = '';
 	public $langAvailable = ['ru','en'];
-	public $langPath = 'lang/';
-	public $cacheFile = 'cache/{$fileName}.txt';
+	private $langPath = 'lang/';
+	private $cachePath = 'cache/';
+	private $cacheFile = '{$fileName}.txt';
+	public $skinName = 'default';
+	public $skinPath = 'skins/';
 	public $skinAvailable = [
 		'default',
 		'modern-blue',
@@ -106,7 +109,7 @@ class inWidget {
 				$this->medias = $this->api->getMedias( $this->config['LOGIN'], $this->config['imgCount'] );
 			}
 		} catch (Exception $e) {
-			$this->data = array();
+			$this->data = [];
 			$this->answer = $e->getMessage();
 			die($this->getError(500));
 		}
@@ -128,7 +131,7 @@ class inWidget {
 		if(empty($this->data)) {
 			$this->apiQuery();
 			$this->createCache();
-			$this->data = json_decode(file_get_contents($this->cacheFile));
+			$this->data = json_decode(file_get_contents($this->getCacheFilePath()));
 		}
 	}
 	private function getDataNamed() {
@@ -162,12 +165,12 @@ class inWidget {
 		if($this->config['cacheSkip'] === true) {
 			return false;
 		}
-		$mtime = @filemtime($this->cacheFile);
+		$mtime = @filemtime($this->getCacheFilePath());
 		if($mtime<=0) die($this->getError(102));
 		$cacheExpTime = $mtime + ($this->config['cacheExpiration']*60*60);
 		if(time() > $cacheExpTime) return false;
 		else {
-			$rawData = file_get_contents($this->cacheFile);
+			$rawData = file_get_contents($this->getCacheFilePath());
 			$cacheData = json_decode($rawData);
 			if(!is_object($cacheData)) return $rawData;
 			unset($rawData);
@@ -176,48 +179,51 @@ class inWidget {
 	}
 	private function createCache() {
 		$data = json_encode($this->getDataNamed());
-		file_put_contents($this->cacheFile,$data,LOCK_EX);
+		file_put_contents($this->getCacheFilePath(),$data,LOCK_EX);
+	}
+	private function getCacheFilePath() {
+		return $this->cachePath.''.$this->cacheFile;
 	}
 	private function checkConfig() {
+		if(empty($this->config['LOGIN'])) {
+			die('inWidget: LOGIN required in config.php');
+		}
+		if(!in_array($this->config['langDefault'], $this->langAvailable, true)){
+			die('inWidget: default language does not present in "langAvailable" class property');
+		}
+		if(!in_array($this->config['skinDefault'], $this->skinAvailable, true)){
+			die('inWidget: default skin does not present in "skinAvailable" class property');
+		}
 		$this->langPath = __DIR__.'/'.$this->langPath; // PHP < 5.6 fix
-		$this->cacheFile = __DIR__.'/'.$this->cacheFile; // PHP < 5.6 fix
-		if(!empty($this->config['LOGIN'])) {
-			$this->config['LOGIN'] = strtolower(trim($this->config['LOGIN']));
-			$cacheFileName = md5($this->config['LOGIN']);
-		}
-		else die('inWidget: LOGIN required in config.php');
-		if(!empty($this->config['langDefault'])) {
-			$this->config['langDefault'] = strtolower(trim($this->config['langDefault']));
-		}
-		else die('inWidget: langDefault required in config.php');
+		$this->cachePath = __DIR__.'/'.$this->cachePath; // PHP < 5.6 fix
+		$this->config['LOGIN'] = strtolower(trim($this->config['LOGIN']));
+		$cacheFileName = md5($this->config['LOGIN']);
 		if(!empty($this->config['HASHTAG'])) {
 			$this->config['HASHTAG'] = trim($this->config['HASHTAG']);
 			$this->config['HASHTAG'] = str_replace('#','',$this->config['HASHTAG']);
 			$cacheFileName = md5($this->config['HASHTAG'].'_tags');
 		}
-		if(!empty($this->config['cacheFile'])) {
-			$find = strpos($this->config['cacheFile'],'{$fileName}');
-			if($find !== false) {
-				$this->cacheFile = $this->config['cacheFile'];
-			}
-			else die('inWidget: {$fileName} required in context of cacheFile option in config.php');
-			unset($find);
+		if(!empty($this->config['skinPath'])) {
+			$this->skinPath = $this->config['skinPath'];
+		}
+		if(!empty($this->config['cachePath'])) {
+			$this->cachePath = $this->config['cachePath'];
 		}
 		$this->cacheFile = str_replace('{$fileName}', $cacheFileName, $this->cacheFile);
 		if(!empty($this->config['bannedLogins'])) {
 			$logins = explode(',', $this->config['bannedLogins']);
 			if(!empty($logins)) {
-				$this->config['bannedLogins'] = array();
+				$this->config['bannedLogins'] = [];
 				foreach ($logins as $key=>$item) {
 					$item = strtolower(trim($item));
 					$this->config['bannedLogins'][$key]['login'] = $item;
 				}
 			}
 		}
-		else $this->config['bannedLogins'] = array();
+		else $this->config['bannedLogins'] = [];
 	}
 	private function checkCacheRights() {
-		$cacheFile = @fopen($this->cacheFile,'a+b');
+		$cacheFile = @fopen($this->getCacheFilePath(),'a+b');
 		if(!is_resource($cacheFile)) die($this->getError(101));
 		fclose($cacheFile);
 	}
@@ -237,7 +243,7 @@ class inWidget {
 		}
 		$this->lang = $LANG;
 	}
-	public function setSkin($name = ''){
+	public function setSkin($name = '') {
 		if(!empty($name) AND in_array($name, $this->skinAvailable, true)){
 			$this->skinName = $name;
 		}
@@ -245,24 +251,26 @@ class inWidget {
 	}
 	public function setOptions() {
 		$this->width -= 2;
-		if(isset($_GET['width']) AND (int)$_GET['width']>0)
-			$this->width = $_GET['width']-2;
-		if(isset($_GET['inline']) AND (int)$_GET['inline']>0)
-			$this->inline = $_GET['inline'];
-		if(isset($_GET['view']) AND (int)$_GET['view']>0)
-			$this->view = $_GET['view'];
-		if(isset($_GET['toolbar']) AND $_GET['toolbar'] == 'false' OR !empty($this->config['HASHTAG']))
-			$this->toolbar = false;
-		if(isset($_GET['adaptive']) AND $_GET['adaptive'] == 'true')
-			$this->adaptive = true;
-		if(isset($_GET['preview']))
-			$this->preview = $_GET['preview'];
-		if($this->width>0)
+		if($this->skipGET === false) {
+			if(isset($_GET['width']) AND (int)$_GET['width']>0)
+				$this->width = $_GET['width']-2;
+			if(isset($_GET['inline']) AND (int)$_GET['inline']>0)
+				$this->inline = $_GET['inline'];
+			if(isset($_GET['view']) AND (int)$_GET['view']>0)
+				$this->view = $_GET['view'];
+			if(isset($_GET['toolbar']) AND $_GET['toolbar'] == 'false' OR !empty($this->config['HASHTAG']))
+				$this->toolbar = false;
+			if(isset($_GET['adaptive']) AND $_GET['adaptive'] == 'true')
+				$this->adaptive = true;
+			if(isset($_GET['preview']))
+				$this->preview = $_GET['preview'];
+			if(isset($_GET['lang']))
+				$this->setLang($_GET['lang']);
+			if(isset($_GET['skin']))
+				$this->setSkin($_GET['skin']);
+		}
+		if($this->width>0) 
 			$this->imgWidth = round(($this->width-(17+(9*$this->inline)))/$this->inline);
-		if(isset($_GET['lang']))
-			$this->setLang($_GET['lang']);
-		if(isset($_GET['skin']))
-			$this->setSkin($_GET['skin']);
 	}
 	public function isBannedUserId($id) {
 		if(!empty($this->data->banned)) {
@@ -290,11 +298,11 @@ class inWidget {
 		return $count;
 	}
 	private function getError($code) {
-		$this->errors[$code] = str_replace('{$cacheFile}',$this->cacheFile,$this->errors[$code]);
+		$this->errors[$code] = str_replace('{$cacheFile}',$this->getCacheFilePath(),$this->errors[$code]);
 		$this->errors[$code] = str_replace('{$answer}',strip_tags($this->answer),$this->errors[$code]);
 		$result = '<b>ERROR <a href="http://inwidget.ru/#error'.$code.'" target="_blank">#'.$code.'</a>:</b> '.$this->errors[$code];
 		if($code >= 401) {
-			file_put_contents($this->cacheFile,$result,LOCK_EX);
+			file_put_contents($this->getCacheFilePath(),$result,LOCK_EX);
 		}
 		return $result;
 	}

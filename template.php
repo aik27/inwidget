@@ -10,7 +10,7 @@
  * @link http://inwidget.ru
  * @copyright 2014-2018 Alexandr Kazarmshchikov
  * @author Alexandr Kazarmshchikov
- * @version 1.1.7
+ * @version 1.1.8
  * @package inWidget
  *
  */
@@ -24,63 +24,64 @@ if(!is_object($inWidget->data)) die('<b style="color:red;">Cache file contains p
 	<head>
 		<title>inWidget - free Instagram widget for your site!</title>
 		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
-		<meta http-equiv="content-language" content="<?php echo $inWidget->langName; ?>" />
+		<meta http-equiv="content-language" content="<?= $inWidget->langName ?>" />
 		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
-		<link rel="stylesheet" type="text/css" href="css/<?php echo $inWidget->skinName; ?>.css?r2" media="all" />
+		<link rel="stylesheet" type="text/css" href="<?= $inWidget->skinPath.$inWidget->skinName ?>.css?r2" media="all" />
 		<?php if($inWidget->adaptive === false): ?>
 			<style type='text/css'>
 				.widget {
-					width:<?php echo $inWidget->width; ?>px;
+					width:<?= $inWidget->width; ?>px;
 				}
 				.widget .data a.image:link, .widget .data a.image:visited {
-					width:<?php echo $inWidget->imgWidth; ?>px;
-					height:<?php echo $inWidget->imgWidth; ?>px;
+					width:<?= $inWidget->imgWidth; ?>px;
+					height:<?= $inWidget->imgWidth; ?>px;
 				}
 				.widget .data .image span {
-					width:<?php echo $inWidget->imgWidth; ?>px;
-					height:<?php echo $inWidget->imgWidth; ?>px;
+					width:<?= $inWidget->imgWidth; ?>px;
+					height:<?= $inWidget->imgWidth; ?>px;
 				}
 				.copyright {
-					width:<?php echo $inWidget->width; ?>px;
+					width:<?= $inWidget->width; ?>px;
 				}
 			</style>
-		<?php else: require_once 'plugins/adaptive.php'; endif; ?>
+		<?php 
+			else: require_once 'plugins/adaptive.php'; 
+			endif; 
+		?>
 	</head>
 <body>
 <div id="widget" class="widget">
-	<a href="http://instagram.com/<?php echo $inWidget->data->username; ?>" target="_blank" class="title">
+	<a href="http://instagram.com/<?= $inWidget->data->username ?>" target="_blank" class="title">
 		<div class="icon">&nbsp;</div>
-		<div class="text"><?php echo $inWidget->lang['title']; ?></div>
+		<div class="text"><?= $inWidget->lang['title'] ?></div>
 		<div class="clear">&nbsp;</div>
 	</a>
-	<?php
-		if($inWidget->toolbar == true) { 
-			echo '
-			<table class="profile">
-				<tr>
-					<td rowspan="2" class="avatar">
-						<a href="http://instagram.com/'.$inWidget->data->username.'" target="_blank"><img src="'.$inWidget->data->avatar.'"></a>
-					</td>
-					<td class="value">
-						'.$inWidget->data->posts.'
-						<span>'.$inWidget->lang['statPosts'].'</span>
-					</td>
-					<td class="value">
-						'.$inWidget->data->followers.'
-						<span>'.$inWidget->lang['statFollowers'].'</span>
-					</td>
-					<td class="value" style="border-right:none !important;">
-						'.$inWidget->data->following.'
-						<span>'.$inWidget->lang['statFollowing'].'</span>
-					</td>
-				</tr>
-				<tr>
-					<td colspan="3" style="border-right:none !important;">
-						<a href="http://instagram.com/'.$inWidget->data->username.'" class="follow" target="_blank">'.$inWidget->lang['buttonFollow'].' &#9658;</a>
-					</td>
-				</tr>
-			</table>';
-		}
+	<?php if($inWidget->toolbar == true): ?>
+		<table class="profile">
+			<tr>
+				<td rowspan="2" class="avatar">
+					<a href="http://instagram.com/<?= $inWidget->data->username ?>" target="_blank"><img src="<?= $inWidget->data->avatar ?>"></a>
+				</td>
+				<td class="value">
+					<?= $inWidget->data->posts; ?>
+					<span><?=$inWidget->lang['statPosts'] ?></span>
+				</td>
+				<td class="value">
+					<?= $inWidget->data->followers ?>
+ 					<span><?= $inWidget->lang['statFollowers'] ?></span>
+				</td>
+				<td class="value" style="border-right:none !important;">
+					<?= $inWidget->data->following ?>
+ 					<span><?= $inWidget->lang['statFollowing'] ?></span>
+				</td>
+			</tr>
+			<tr>
+				<td colspan="3" style="border-right:none !important;">
+					<a href="http://instagram.com/<?= $inWidget->data->username ?>" class="follow" target="_blank"><?= $inWidget->lang['buttonFollow'] ?> &#9658;</a>
+				</td>
+			</tr>
+		</table>
+		<?php endif;
 		$i = 0;
 		$count = $inWidget->countAvailableImages($inWidget->data->images);
 		if($count>0) {

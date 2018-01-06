@@ -8,7 +8,7 @@
  *
  * @link http://inwidget.ru
  * @author Alexandr Kazarmshchikov
- * @version 1.1.7
+ * @version 1.1.8
  * @package inWidget
  *
  */
@@ -50,7 +50,9 @@
 * imgCount – сколько фотографий запрашивать из Instagram. Влияет на размер кэша.
 * cacheExpiration – через сколько часов обновлять кэш.
 * cacheSkip – не использовать кэш [ true / false ]. Если присвоить true, то кэш будет проигнорирован и запросы к API будут отправляться при каждой загрузке виджета. Используйте эту опцию только для отладки.
+* cachePath - путь к директории с кэш файлами
 * skinDefault - скин виджета по умолчанию [default / modern-blue / modern-green / modern-red / modern-orange / modern-grey / modern-black / modern-violet / modern-yellow]
+* skinPath - путь к деректории со скинами
 * langDefault - язык виджета по умолчанию [ ru / en ]
 * langAuto - автоматически определять язык пользователя [ true / false ]
 
@@ -121,6 +123,63 @@ adaptive - адаптивный режим (значения true / false, по 
 Возможность актуальна для версии >= 1.1.4 
 
 // ----------------------------------------
+// Разработчикам плагинов и приложений:
+// ----------------------------------------
+
+Вы можете подключить код виджета и задать параметры через конструктор класса.
+При использовании примера ниже будьте внимательны с путями к файлам.
+
+require_once 'inwidget/plugins/autoload.php';
+require_once 'inwidget/plugins/InstagramScraper.php';
+require_once 'inwidget/plugins/unirest-php/Unirest.php';
+require_once 'inwidget/inwidget.php';
+
+$config = array(
+	'LOGIN' => 'fotokto_ru',
+	'HASHTAG' => '',
+	'bannedLogins' => '',
+	'imgRandom' => true,
+	'imgCount' => 30,
+	'cacheExpiration' => 6,
+	'cacheSkip' => false,
+	'cachePath' =>  $_SERVER['DOCUMENT_ROOT'].'/inwidget/cache/',
+	'skinDefault' => 'default',
+	'skinPath'=> '/inwidget/skins/',
+	'langDefault' => 'ru',
+	'langAuto' => false,
+);
+$inWidget = new inWidget($config);
+$inWidget->getData();
+
+/* You may change default values of properties */
+/*
+$inWidget->width = 800;
+$inWidget->inline = 6;
+$inWidget->view = 18;
+$inWidget->toolbar = false;
+$inWidget->preview = 'large';
+$inWidget->adaptive = false;
+$inWidget->skipGET = true; 	// skip GET variables to avoid name conflicts
+$inWidget->setOptions(); 	// apply new values
+*/
+
+include 'inwidget/template.php';
+
+Кроме того, вы можете переопределить в коде значение большинства свойств, которые по умолчанию передаются через GET переменные.
+
+Обратите внимание, что:
+
+* $inWidget->skipGET - отключает переопределение свойст класса через GET переменные (по умолчанию false)
+* $inWidget->setOptions() - применяет новые значения свойст класса, если бы они были заданы в коде
+
+Имейте ввиду, что отправка запросов и получение ответов от сервера Instagram занимает время. 
+Кроме того, большая часть ошибок останавливает работу скрипта, а не бросает исключения. 
+По этой причине код должен выполняться параллельно логике основного приложения, вызываясь через iframe или javascript.
+
+Я крайне не советую включать виджет непосредственно в движки сайтов и приложения с бизнес-логикой, 
+т.к. их работа может быть замедленна или полностью остановлена в следствии ошибки или неожиданного ответа от сервера Instagram.
+
+// ----------------------------------------
 // Коды ошибок:
 // ----------------------------------------
 
@@ -144,6 +203,11 @@ adaptive - адаптивный режим (значения true / false, по 
 // ----------------------------------------
 // История версий:
 // ----------------------------------------
+
+inWidget-1.1.8
+Дата: 07 января 2018 г.
+
+* Внесено множество улучшений для упрощения разработки плагинов и приложений на основе виджета.
 
 inWidget-1.1.7
 Дата: 06 января 2018 г.

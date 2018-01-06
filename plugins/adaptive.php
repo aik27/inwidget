@@ -14,9 +14,9 @@
 		$inWidget->view = 12;
 	}
 ?>
-<script type="text/javascript" src="js/jquery-3.2.1.min.js"></script>
+<script type="text/javascript" src="<?= $inWidget->skinPath ?>js/jquery-3.2.1.min.js"></script>
 <style type='text/css'>
-	<?= setImageSize($inWidget->inline); ?>
+	<?= setImageSize($inWidget->inline) ?>
 	.widget .data .image span {
 		width: 100%;
 		height: 100%;
@@ -31,17 +31,17 @@
 	}
 	<?php if($inWidget->inline > 4): ?>
 		@media (max-width: 400px) {
-			<?= setImageSize(4); ?>
+			<?= setImageSize(4) ?>
 		}	
 	<?php endif;?>
 	@media (max-width: 230px) {
-		<?= setImageSize(3); ?>
+		<?= setImageSize(3) ?>
 	}
 	@media (max-width: 180px) {
-		<?= setImageSize(2); ?>
+		<?= setImageSize(2) ?>
 	}
 	@media (max-width: 90px) {
-		<?= setImageSize(1); ?>
+		<?= setImageSize(1) ?>
 	}
 </style>
 <script type="text/javascript">
