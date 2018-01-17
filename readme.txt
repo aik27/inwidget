@@ -8,7 +8,7 @@
  *
  * @link http://inwidget.ru
  * @author Alexandr Kazarmshchikov
- * @version 1.1.8
+ * @version 1.1.9
  * @package inWidget
  *
  */
@@ -129,9 +129,8 @@ adaptive - адаптивный режим (значения true / false, по 
 Вы можете подключить код виджета и задать параметры через конструктор класса.
 При использовании примера ниже будьте внимательны с путями к файлам.
 
-require_once 'inwidget/plugins/autoload.php';
 require_once 'inwidget/plugins/InstagramScraper.php';
-require_once 'inwidget/plugins/unirest-php/Unirest.php';
+require_once 'inwidget/plugins/Unirest.php';
 require_once 'inwidget/inwidget.php';
 
 $config = array(
@@ -148,22 +147,26 @@ $config = array(
 	'langDefault' => 'ru',
 	'langAuto' => false,
 );
-$inWidget = new inWidget($config);
-$inWidget->getData();
 
-/* You may change default values of properties */
-/*
-$inWidget->width = 800;
-$inWidget->inline = 6;
-$inWidget->view = 18;
-$inWidget->toolbar = false;
-$inWidget->preview = 'large';
-$inWidget->adaptive = false;
-$inWidget->skipGET = true; 	// skip GET variables to avoid name conflicts
-$inWidget->setOptions(); 	// apply new values
-*/
-
-include 'inwidget/template.php';
+try {
+	$inWidget = new inWidget($config);
+	$inWidget->getData();
+	// You may change default values of properties
+	/*
+	$inWidget->width = 800;			// widget width in pixels
+	$inWidget->inline = 6;			// number of images in single line
+	$inWidget->view = 18;			// number of images in widget
+	$inWidget->toolbar = false;		// show profile avatar, statistic and action button
+	$inWidget->preview = 'large';	// quality of images: small, large, fullsize
+	$inWidget->adaptive = false;	// enable adaptive mode
+	$inWidget->skipGET = true; 		// skip GET variables to avoid name conflicts
+	$inWidget->setOptions(); 		// apply new values
+	*/
+	include 'inwidget/template.php';
+}
+catch (\Exception $e) {
+	echo $e->getMessage();
+}
 
 Кроме того, вы можете переопределить в коде значение большинства свойств, которые по умолчанию передаются через GET переменные.
 
@@ -171,13 +174,6 @@ include 'inwidget/template.php';
 
 * $inWidget->skipGET - отключает переопределение свойст класса через GET переменные (по умолчанию false)
 * $inWidget->setOptions() - применяет новые значения свойст класса, если бы они были заданы в коде
-
-Имейте ввиду, что отправка запросов и получение ответов от сервера Instagram занимает время. 
-Кроме того, большая часть ошибок останавливает работу скрипта, а не бросает исключения. 
-По этой причине код должен выполняться параллельно логике основного приложения, вызываясь через iframe или javascript.
-
-Я крайне не советую включать виджет непосредственно в движки сайтов и приложения с бизнес-логикой, 
-т.к. их работа может быть замедленна или полностью остановлена в следствии ошибки или неожиданного ответа от сервера Instagram.
 
 // ----------------------------------------
 // Коды ошибок:
@@ -203,6 +199,15 @@ include 'inwidget/template.php';
 // ----------------------------------------
 // История версий:
 // ----------------------------------------
+
+inWidget-1.1.9
+Дата: 17 января 2018 г.
+
+* Переработан механизм ошибок. Теперь виджет бросает исключения вместо остановки работы с помощью die()
+* Убрана необходимость использовать autoloader совместно с instagram-php-scraper
+* Изменился путь к библиотеке Unirest
+* Изменилось название директории с языками
+* Обновлена библиотека instagram-php-scraper до версии 0.8.11.
 
 inWidget-1.1.8
 Дата: 07 января 2018 г.

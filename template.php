@@ -10,13 +10,14 @@
  * @link http://inwidget.ru
  * @copyright 2014-2018 Alexandr Kazarmshchikov
  * @author Alexandr Kazarmshchikov
- * @version 1.1.8
+ * @version 1.1.9
  * @package inWidget
  *
  */
 
-if(!$inWidget) die('inWidget object was not initialised.');
-if(!is_object($inWidget->data)) die('<b style="color:red;">Cache file contains plain text:</b><br />'.$inWidget->data);
+if(!is_object($inWidget)) {
+	throw new \Exception('inWidget object was not initialised.');
+}
 
 ?>
 <!DOCTYPE html> 
@@ -30,18 +31,18 @@ if(!is_object($inWidget->data)) die('<b style="color:red;">Cache file contains p
 		<?php if($inWidget->adaptive === false): ?>
 			<style type='text/css'>
 				.widget {
-					width:<?= $inWidget->width; ?>px;
+					width:<?= $inWidget->width ?>px;
 				}
 				.widget .data a.image:link, .widget .data a.image:visited {
-					width:<?= $inWidget->imgWidth; ?>px;
-					height:<?= $inWidget->imgWidth; ?>px;
+					width:<?= $inWidget->imgWidth ?>px;
+					height:<?= $inWidget->imgWidth ?>px;
 				}
 				.widget .data .image span {
-					width:<?= $inWidget->imgWidth; ?>px;
-					height:<?= $inWidget->imgWidth; ?>px;
+					width:<?= $inWidget->imgWidth ?>px;
+					height:<?= $inWidget->imgWidth ?>px;
 				}
 				.copyright {
-					width:<?= $inWidget->width; ?>px;
+					width:<?= $inWidget->width ?>px;
 				}
 			</style>
 		<?php 

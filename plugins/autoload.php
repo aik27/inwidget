@@ -1,5 +1,6 @@
 <?php
-class Autoloader
+
+class inWidgetAutoloader
 {
 	private static $_lastLoadedFilename;
 	public static function loadPackages($className)
@@ -10,4 +11,4 @@ class Autoloader
 		require_once(__DIR__.'/'.self::$_lastLoadedFilename);
 	}
 }
-spl_autoload_register(array('Autoloader', 'loadPackages'));
+spl_autoload_register(array('inWidgetAutoloader', 'loadPackages'));
