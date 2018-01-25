@@ -1,8 +1,13 @@
 <?php
 
+namespace inWidget;
+
+use inWidget\API\apiModel;
+use inWidget\Exception\inWidgetException;
+
 /**
  * Project:     inWidget: show pictures from instagram.com on your site!
- * File:        inwidget.php
+ * File:        Core.php
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of MIT license
@@ -11,18 +16,18 @@
  * @link http://inwidget.ru
  * @copyright 2014-2018 Alexandr Kazarmshchikov
  * @author Alexandr Kazarmshchikov
- * @version 1.1.9
+ * @version 1.2.0
  * @package inWidget
  *
  */
 
-class inWidget 
+class Core
 {
 	public $config = [];
 	public $data = [];
+	public $api = false;
 	private $account = false;
 	private $medias = false;
-	private $api = false;
 	private $banned = [];
 	public $width = 260;
 	public $inline = 4;
@@ -55,8 +60,11 @@ class inWidget
 	 * @param array $config [optional] - like config.php
 	 * @return null
 	 */
-	public function __construct($config = []) {
-		if(!empty($config)) $this->config = $config;
+	public function __construct($config = []) 
+	{
+		if(!empty($config)) {
+			$this->config = $config;
+		}
 		else {
 			require_once 'config.php';
 			$this->config = $CONFIG;
@@ -66,7 +74,12 @@ class inWidget
 		$this->setLang();
 		$this->setSkin();
 		$this->setOptions();
-		$this->api = new \InstagramScraper\Instagram();
+		if(!empty($this->config['ACCESS_TOKEN'])) {
+			$this->api = apiModel::getInstance('official');
+		}
+		else {
+			$this->api = apiModel::getInstance();
+		}
 	}
 	/**
 	 * Send request to Instagram
@@ -74,28 +87,30 @@ class inWidget
 	 * @return null
 	 * @throws inWidgetException
 	 */
-	private function apiQuery() {
+	private function apiQuery() 
+	{
 		try {
-			$this->account = $this->api->getAccount($this->config['LOGIN']);
-			if($this->account->isPrivate()) {
-				throw new inWidgetException('Requested profile is private',500,$this);
-			}
+			$this->account = $this->api->getAccountByLogin($this->config['LOGIN'], $this->config['ACCESS_TOKEN']);
 			// by hashtag
 			if(!empty($this->config['HASHTAG'])) {
 				$mediaArray = [];
 				$tags = explode(',', $this->config['HASHTAG']);
 				if(!empty($tags)) {
-					foreach ($tags as $key=>$item){
-						$item = strtolower(trim($item));
+					foreach ($tags as $key=>$item) {
 						if(!empty($item)) {
-							$mediaArray[] = $this->api->getMediasByTag( $item, $this->config['imgCount'] );
+							if($this->config['tagsFromAccountOnly'] === true) {
+								$mediaArray[] = $this->api->getMediasByTagFromAccount($item, $this->config['LOGIN'], $this->config['ACCESS_TOKEN'], $this->config['imgCount']);
+							}
+							else {
+								$mediaArray[] = $this->api->getMediasByTag($item, $this->config['ACCESS_TOKEN'], $this->config['imgCount']);
+							}
 						}
 					}
 				}
-				$medias = new ArrayObject();
+				$medias = [];
 				if(!empty($mediaArray)) {
 					foreach ($mediaArray as $key=>$item){
-						$medias = (object) array_merge( (array) $medias, (array) $item );
+						$medias = array_merge($medias, $item);
 					}
 				}
 				$this->medias = $medias;
@@ -103,20 +118,20 @@ class inWidget
 			}
 			// by profile
 			else {
-				$this->medias = $this->api->getMedias( $this->config['LOGIN'], $this->config['imgCount'] );
+				$this->medias = $this->api->getMediasByLogin($this->config['LOGIN'], $this->config['ACCESS_TOKEN'], $this->config['imgCount']);
 			}
 		} catch (\Exception $e) {
-			throw new inWidgetException($e->getMessage(),500,$this);
+			throw new inWidgetException($e->getMessage(), 500, $this->getCacheFilePath());
 		}
 		// Get banned ids. Ignore any errors
-		if(!empty($this->config['bannedLogins'])) {
-			foreach ($this->config['bannedLogins'] as $key=>$item) {
+		if(!empty($this->config['tagsBannedLogins'])) {
+			foreach ($this->config['tagsBannedLogins'] as $key=>$item) {
 				try {
-					$banned = $this->api->getAccount($item['login']);
-					$this->config['bannedLogins'][$key]['id'] = $banned->getId();
+					$banned = $this->api->getAccountByLogin($item['login'], $this->config['ACCESS_TOKEN']);
+					$this->config['tagsBannedLogins'][$key]['id'] = $banned['userid'];
 				} catch (\Exception $e) {}
 			}
-			$this->banned = $this->config['bannedLogins'];
+			$this->banned = $this->config['tagsBannedLogins'];
 		}
 	}
 	/**
@@ -126,7 +141,8 @@ class inWidget
 	 * @throws Exception
 	 * @throws inWidgetException
 	 */
-	public function getData() {
+	public function getData() 
+	{
 		$this->data = $this->getCache();
 		if(empty($this->data)) {
 			$this->apiQuery();
@@ -139,47 +155,29 @@ class inWidget
 		return $this->data;
 	}
 	/**
-	 * Get data independent of API functionality
+	 * Get data independent of API names policy
 	 * @return array
 	 */
-	private function getDataNamed() {
-		$data['userid'] 	= $this->account->getId();
-		$data['username'] 	= $this->account->getUsername();
-		$data['avatar'] 	= $this->account->getProfilePicUrl();
-		$data['posts']	 	= $this->account->getMediaCount();
-		$data['followers'] 	= $this->account->getFollowedByCount();
-		$data['following'] 	= $this->account->getFollowsCount();
-		$data['banned']  	= $this->banned;
-		$data['tags']  		= $this->config['HASHTAG'];
-		$data['images']		= [];
-		if(!empty($this->medias)) {
-			foreach ($this->medias as $key=>$item) {
-				$data['images'][$key]['id'] 			= $item->getId();
-				$data['images'][$key]['code'] 			= $item->getShortCode();
-				$data['images'][$key]['created'] 		= $item->getCreatedTime();
-				$data['images'][$key]['text'] 			= $item->getCaption();
-				$data['images'][$key]['link'] 			= $item->getLink();
-				$data['images'][$key]['fullsize'] 		= $item->getImageHighResolutionUrl();
-				$data['images'][$key]['large'] 			= $item->getImageStandardResolutionUrl();
-				$data['images'][$key]['small'] 			= $item->getImageLowResolutionUrl();
-				$data['images'][$key]['likesCount'] 	= $item->getLikesCount();
-				$data['images'][$key]['commentsCount'] 	= $item->getCommentsCount();
-				$data['images'][$key]['authorId'] 		= $item->getOwnerId();
-			}
-		}
+	private function prepareData() 
+	{
+		$data = $this->account;
+		$data['banned'] = $this->banned;
+		$data['tags']	= $this->config['HASHTAG'];
+		$data['images']	= $this->medias;
 		return $data;
 	}
 	/**
 	 * @return mixed
 	 * @throws inWidgetException
 	 */
-	private function getCache() {
+	private function getCache() 
+	{
 		if($this->config['cacheSkip'] === true) {
 			return false;
 		}
 		$mtime = @filemtime($this->getCacheFilePath());
 		if($mtime<=0) {
-			throw new inWidgetException('Can\'t get modification time of <b>{$cacheFile}</b>. Cache always be expired.',102,$this);
+			throw new inWidgetException('Can\'t get modification time of <b>{$cacheFile}</b>. Cache always be expired.', 102, $this->getCacheFilePath());
 		}
 		$cacheExpTime = $mtime + ($this->config['cacheExpiration']*60*60);
 		if(time() > $cacheExpTime) return false;
@@ -194,14 +192,16 @@ class inWidget
 	/**
 	 * @return null
 	 */
-	private function createCache() {
-		$data = json_encode($this->getDataNamed());
-		file_put_contents($this->getCacheFilePath(),$data,LOCK_EX);
+	private function createCache() 
+	{
+		$data = json_encode($this->prepareData());
+		file_put_contents($this->getCacheFilePath(), $data, LOCK_EX);
 	}
 	/**
 	 * @return string
 	 */
-	public function getCacheFilePath() {
+	public function getCacheFilePath() 
+	{
 		return $this->cachePath.''.$this->cacheFile;
 	}
 	/**
@@ -210,7 +210,8 @@ class inWidget
 	 * @return null
 	 * @throws Exception
 	 */
-	private function checkConfig() {
+	private function checkConfig() 
+	{
 		if(empty($this->config['LOGIN'])) {
 			throw new \Exception(__CLASS__.': LOGIN required in config.php');
 		}
@@ -226,7 +227,7 @@ class inWidget
 		$cacheFileName = md5($this->config['LOGIN']);
 		if(!empty($this->config['HASHTAG'])) {
 			$this->config['HASHTAG'] = trim($this->config['HASHTAG']);
-			$this->config['HASHTAG'] = str_replace('#','',$this->config['HASHTAG']);
+			$this->config['HASHTAG'] = str_replace('#', '', $this->config['HASHTAG']);
 			$cacheFileName = md5($this->config['HASHTAG'].'_tags');
 		}
 		if(!empty($this->config['skinPath'])) {
@@ -235,18 +236,21 @@ class inWidget
 		if(!empty($this->config['cachePath'])) {
 			$this->cachePath = $this->config['cachePath'];
 		}
+		if(!empty($this->config['langPath'])) {
+			$this->langPath = $this->config['langPath'];
+		}
 		$this->cacheFile = str_replace('{$fileName}', $cacheFileName, $this->cacheFile);
-		if(!empty($this->config['bannedLogins'])) {
-			$logins = explode(',', $this->config['bannedLogins']);
+		if(!empty($this->config['tagsBannedLogins'])) {
+			$logins = explode(',', $this->config['tagsBannedLogins']);
 			if(!empty($logins)) {
-				$this->config['bannedLogins'] = [];
+				$this->config['tagsBannedLogins'] = [];
 				foreach ($logins as $key=>$item) {
 					$item = strtolower(trim($item));
-					$this->config['bannedLogins'][$key]['login'] = $item;
+					$this->config['tagsBannedLogins'][$key]['login'] = $item;
 				}
 			}
 		}
-		else $this->config['bannedLogins'] = [];
+		else $this->config['tagsBannedLogins'] = [];
 	}
 	/**
 	 * Let me know if cache file not writable
@@ -254,10 +258,11 @@ class inWidget
 	 * @return null
 	 * @throws inWidgetException
 	 */
-	private function checkCacheRights() {
-		$cacheFile = @fopen($this->getCacheFilePath(),'a+b');
+	private function checkCacheRights() 
+	{
+		$cacheFile = @fopen($this->getCacheFilePath(), 'a+b');
 		if(!is_resource($cacheFile)) {
-			throw new inWidgetException('Can\'t get access to file <b>{$cacheFile}</b>. Check file path or permissions.',101,$this);
+			throw new inWidgetException('Can\'t get access to file <b>{$cacheFile}</b>. Check file path or permissions.', 101, $this->getCacheFilePath());
 		}
 		fclose($cacheFile);
 	}
@@ -268,7 +273,8 @@ class inWidget
 	 * @param string $name [optional]
 	 * @return null
 	 */
-	public function setLang($name = '') {
+	public function setLang($name = '') 
+	{
 		if(empty($name) AND $this->config['langAuto'] === true AND !empty($_SERVER['HTTP_ACCEPT_LANGUAGE']))
 			$name = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
 		if(!empty($name) AND in_array($name, $this->langAvailable, true)){
@@ -291,7 +297,8 @@ class inWidget
 	 * @param string $name [optional]
 	 * @return null
 	 */
-	public function setSkin($name = '') {
+	public function setSkin($name = '') 
+	{
 		if(!empty($name) AND in_array($name, $this->skinAvailable, true)){
 			$this->skinName = $name;
 		}
@@ -302,7 +309,8 @@ class inWidget
 	 * 
 	 * @return null
 	 */
-	public function setOptions() {
+	public function setOptions() 
+	{
 		$this->width -= 2;
 		if($this->skipGET === false) {
 			if(isset($_GET['width']) AND (int)$_GET['width']>0)
@@ -331,12 +339,13 @@ class inWidget
 	 * @param int $id
 	 * @return bool
 	 */
-	public function isBannedUserId($id) {
+	public function isBannedUserId($id) 
+	{
 		if(!empty($this->data->banned)) {
 			foreach ($this->data->banned as $key1=>$cacheValue) {
 				if(!empty($cacheValue->id) AND $cacheValue->id === $id) {
-					if(!empty($this->config['bannedLogins'])) {
-						foreach ($this->config['bannedLogins'] as $key2=>$configValue) {
+					if(!empty($this->config['tagsBannedLogins'])) {
+						foreach ($this->config['tagsBannedLogins'] as $key2=>$configValue) {
 							if($configValue['login'] === $cacheValue->login)
 								return true;
 						}
@@ -352,7 +361,8 @@ class inWidget
 	 * @param object $images
 	 * @return int
 	 */
-	public function countAvailableImages($images) {
+	public function countAvailableImages($images) 
+	{
 		$count = 0;
 		if(!empty($images)){
 			foreach ($images as $key=>$item){
@@ -361,17 +371,5 @@ class inWidget
 			}
 		}
 		return $count;
-	}
-}
-class inWidgetException extends \Exception 
-{
-	public function __construct( $text, $code, $object) {
-		$text = str_replace('{$cacheFile}', $object->getCacheFilePath(), $text);
-		$text = strip_tags($text);
-		$result = '<b>ERROR <a href="http://inwidget.ru/#error'.$code.'" target="_blank">#'.$code.'</a>:</b> '.$text;
-		if($code >= 401) {
-			file_put_contents($object->getCacheFilePath(), $result, LOCK_EX);
-		}
-		\Exception::__construct($result, $code);
 	}
 }

@@ -10,7 +10,7 @@
  * @link http://inwidget.ru
  * @copyright 2014-2018 Alexandr Kazarmshchikov
  * @author Alexandr Kazarmshchikov
- * @version 1.1.9
+ * @version 1.2.0
  * @package inWidget
  * 
  */
@@ -22,19 +22,19 @@ header('Content-type: text/html; charset=utf-8');
 if(phpversion() < "5.4.0") 		die('inWidget required PHP >= <b>5.4.0</b>. Your version: '.phpversion());
 if(!extension_loaded('curl')) 	die('inWidget required <b>cURL PHP extension</b>. Please, install it or ask your hosting provider.');
 
-#require_once 'plugins/autoload.php';
-require_once 'plugins/InstagramScraper.php';
-require_once 'plugins/Unirest.php';
-require_once 'inwidget.php';
+#require_once 'classes/Autoload.php';
+require_once 'classes/InstagramScraper.php';
+require_once 'classes/Unirest.php';
+require_once 'classes/InWidget.php';
 
 /* -----------------------------------------------------------
 	Native initialization
  ------------------------------------------------------------*/
 
 try {
-	$inWidget = new inWidget;
+	$inWidget = new \inWidget\Core;
 	$inWidget->getData();
-	require_once 'template.php';
+	include 'template.php';
 }
 catch (\Exception $e) {
 	echo $e->getMessage();
@@ -52,19 +52,22 @@ try {
 	$config = array(
 		'LOGIN' => 'fotokto_ru',
 		'HASHTAG' => '',
-		'bannedLogins' => '',
+		'ACCESS_TOKEN' => '',
+		'tagsBannedLogins' => '',
+		'tagsFromAccountOnly' => false,
 		'imgRandom' => false,
 		'imgCount' => 30,
 		'cacheExpiration' => 6,
 		'cacheSkip' => false,
-		'cachePath' =>  $_SERVER['DOCUMENT_ROOT'].'/inwidget/cache/',
+		'cachePath' =>  __DIR__.'/cache/',
 		'skinDefault' => 'default',
-		'skinPath'=> '/inwidget/skins/',
+		'skinPath'=> 'skins/',
 		'langDefault' => 'ru',
 		'langAuto' => false,
+		'langPath' => __DIR__.'/langs/',
 	);
 	
-	$inWidget = new inWidget($config);
+	$inWidget = new \inWidget\Core($config);
 	
 	// Also, you may change default values of properties
 	
@@ -78,8 +81,14 @@ try {
 	$inWidget->setOptions(); 		// apply new values
 
 	$inWidget->getData();
-	require_once 'template.php';
+	include 'template.php';
 	
+	// Also, you may use API methods directly
+	
+	// $account = $inWidget->api->getAccountByLogin($config['LOGIN'], $config['ACCESS_TOKEN'], $config['imgCount']);
+	// $mediasByLogin = $inWidget->api->getMediasByLogin($config['LOGIN'], $config['ACCESS_TOKEN'], $config['imgCount']);
+	// $mediasByTag = $inWidget->api->getMediasByTag('girl', $config['ACCESS_TOKEN'], $config['imgCount']);
+
 }
 catch (\Exception $e) {
 	echo $e->getMessage();

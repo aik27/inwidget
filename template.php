@@ -10,12 +10,12 @@
  * @link http://inwidget.ru
  * @copyright 2014-2018 Alexandr Kazarmshchikov
  * @author Alexandr Kazarmshchikov
- * @version 1.1.9
+ * @version 1.2.0
  * @package inWidget
  *
  */
 
-if(!is_object($inWidget)) {
+if(!$inWidget instanceof \inWidget\Core) {
 	throw new \Exception('inWidget object was not initialised.');
 }
 
