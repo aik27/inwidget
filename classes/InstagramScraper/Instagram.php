@@ -197,7 +197,9 @@ class Instagram
             if (!is_array($arr)) {
                 throw new InstagramException('Response code is ' . $response->code . '. Body: ' . static::getErrorBody($response->body) . ' Something went wrong. Please report issue.');
             }
-            $nodes = $arr['user']['media']['nodes'];
+
+            $nodes = $arr['graphql']['user']['edge_owner_to_timeline_media']['edges'];
+            
             // fix - count takes longer/has more overhead
             if (!isset($nodes) || empty($nodes)) {
                 return [];
@@ -206,14 +208,15 @@ class Instagram
                 if ($index === $count) {
                     return $medias;
                 }
-                $medias[] = Media::create($mediaArray);
+                $medias[] = Media::create($mediaArray['node']);
                 $index++;
             }
             if (empty($nodes) || !isset($nodes)) {
                 return $medias;
             }
-            $maxId = $nodes[count($nodes) - 1]['id'];
-            $isMoreAvailable = $arr['user']['media']['page_info']['has_next_page'];
+            $maxId = $nodes[count($nodes) - 1]['node']['id'];
+            $isMoreAvailable = $arr['graphql']['user']['edge_owner_to_timeline_media']['page_info']['has_next_page'];
+            $isMoreAvailable = false;
         }
         return $medias;
     }
@@ -514,7 +517,7 @@ class Instagram
         Request::curlOpt(CURLOPT_FOLLOWLOCATION, FALSE);
         $response = Request::get($url, $this->generateHeaders($this->userSession));
         Request::curlOpt(CURLOPT_FOLLOWLOCATION, TRUE);
-
+        
         if ($response->code === 400) {
             throw new InstagramException('Account with this id does not exist.');
         }
@@ -552,10 +555,11 @@ class Instagram
         }
 
         $userArray = json_decode($response->raw_body, true, 512, JSON_BIGINT_AS_STRING);
-        if (!isset($userArray['user'])) {
+
+        if (!isset($userArray['graphql']['user'])) {
             throw new InstagramException('Account with this username does not exist');
         }
-        return Account::create($userArray['user']);
+        return Account::create($userArray['graphql']['user']);
     }
 
     /**

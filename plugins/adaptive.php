@@ -62,7 +62,7 @@
 				}
 				$(this).css({
 					'width':'100%',
-					'height': $('#widget').outerHeight()
+					'height': $('#widget').outerHeight(true)
 				});
 			});
 		}

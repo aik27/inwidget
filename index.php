@@ -1,4 +1,5 @@
 <?php 
+
 /**
  * Project:     inWidget: show pictures from instagram.com on your site!
  * File:        index.php
@@ -10,7 +11,7 @@
  * @link http://inwidget.ru
  * @copyright 2014-2018 Alexandr Kazarmshchikov
  * @author Alexandr Kazarmshchikov
- * @version 1.2.0
+ * @version 1.2.1
  * @package inWidget
  * 
  */

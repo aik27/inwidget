@@ -1,7 +1,7 @@
 <?php
 /**
  * Project:     inWidget: show pictures from instagram.com on your site!
- * File:        ru.php
+ * File:        ua.php
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of MIT license
@@ -10,7 +10,7 @@
  * @link http://inwidget.ru
  * @copyright 2014-2018 Alexandr Kazarmshchikov
  * @author Alexandr Kazarmshchikov
- * @version 1.2.0
+ * @version 1.2.1
  * @package inWidget
  * 
  */
@@ -21,6 +21,6 @@ $LANG = array(
 	'statPosts' 		=> 'пости',
 	'statFollowers'		=> 'підписчики',
 	'statFollowing'		=> 'підписки',
-	'imgEmpty'			=> 'у корисувача немає фотографій',
+	'imgEmpty'			=> 'у користувача немає фотографій',
 	'imgEmptyByHash'	=> 'фотографії за тегом <b>#{$hashtag}</b> не знайдені ',
 );

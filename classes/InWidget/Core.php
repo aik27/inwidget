@@ -16,7 +16,7 @@ use inWidget\Exception\inWidgetException;
  * @link http://inwidget.ru
  * @copyright 2014-2018 Alexandr Kazarmshchikov
  * @author Alexandr Kazarmshchikov
- * @version 1.2.0
+ * @version 1.2.1
  * @package inWidget
  *
  */
@@ -39,7 +39,7 @@ class Core
 	public $skipGET = false;
 	public $lang = [];
 	public $langName = '';
-	public $langAvailable = ['ru','en'];
+	public $langAvailable = ['ru','en','ua'];
 	private $langPath = 'langs/';
 	private $cachePath = 'cache/';
 	private $cacheFile = '{$fileName}.txt';

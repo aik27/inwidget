@@ -427,6 +427,13 @@ class Request
             CURLOPT_ENCODING => ''
         ];
 
+        /*
+        $version = curl_version();
+        if($version['version'] >= '7.10.8') {
+        	$curl_base_options[CURLOPT_IPRESOLVE] = CURL_IPRESOLVE_V4;
+        }
+        */
+
         curl_setopt_array(self::$handle, self::mergeCurlOptions($curl_base_options, self::$curlOpts));
 
         if (self::$socketTimeout !== null) {
@@ -488,6 +495,7 @@ class Request
     
     // inWidget FIX
     // Function to fix open_basedir restriction with CURLOPT_FOLLOWLOCATION in shared hosting
+    // More: https://stackoverflow.com/questions/2511410/curl-follow-location-error
     public static function curl_redir_exec($ch){
     	$data = curl_exec($ch);
     	$http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);

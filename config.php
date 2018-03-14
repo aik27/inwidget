@@ -29,7 +29,7 @@ $CONFIG = array(
 	'tagsFromAccountOnly' => false,
 		
 	// Random order of pictures [ true / false ]
-	'imgRandom' => false,
+	'imgRandom' => true,
 
 	// How many pictures widget will get from Instagram?
 	'imgCount' => 30,
@@ -53,7 +53,7 @@ $CONFIG = array(
 	// Path to skin directory
 	'skinPath' => 'skins/',
 		
-	// Default language [ ru / en ] or something else from lang directory.
+	// Default language [ ru / en / ua ] or something else from lang directory.
 	'langDefault' => 'ru',
 		
 	// Full path to langs directory
