@@ -15,7 +15,7 @@ use Unirest\Request;
  * @link http://inwidget.ru
  * @copyright 2014-2018 Alexandr Kazarmshchikov
  * @author Alexandr Kazarmshchikov
- * @version 1.2.2
+ * @version 1.2.3
  * @package inWidget\API
  *
  */
