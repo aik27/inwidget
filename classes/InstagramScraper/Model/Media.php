@@ -426,6 +426,13 @@ class Media extends AbstractModel
                 }
                 $this->squareThumbnailsUrl = $thumbnailsUrl;
                 break;
+            case 'thumbnail_src':
+            	if(empty($this->imageThumbnailUrl)) {
+            		$this->imageThumbnailUrl = $value;
+            		$this->imageLowResolutionUrl = $value;
+            		$this->imageStandardResolutionUrl = $value;
+            	}
+            	break;
             case 'display_url':
             	$this->imageHighResolutionUrl = $value;
             	break;

@@ -13,7 +13,7 @@ namespace inWidget\Exception;
  * @link http://inwidget.ru
  * @copyright 2014-2018 Alexandr Kazarmshchikov
  * @author Alexandr Kazarmshchikov
- * @version 1.2.3
+ * @version 1.2.4
  * @package inWidget
  *
  */
