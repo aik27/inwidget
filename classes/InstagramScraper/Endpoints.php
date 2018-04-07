@@ -8,11 +8,11 @@ class Endpoints
     const LOGIN_URL = 'https://www.instagram.com/accounts/login/ajax/';
     const ACCOUNT_PAGE = 'https://www.instagram.com/{username}';
     const MEDIA_LINK = 'https://www.instagram.com/p/{code}';
-    const ACCOUNT_MEDIAS = 'https://instagram.com/graphql/query/?query_id=17888483320059182&id={user_id}&first=30&after={max_id}';
+    const ACCOUNT_MEDIAS = 'https://www.instagram.com/{username}/?__a=1&max_id={max_id}';
     const ACCOUNT_JSON_INFO = 'https://www.instagram.com/{username}/?__a=1';
     const MEDIA_JSON_INFO = 'https://www.instagram.com/p/{code}/?__a=1';
     const MEDIA_JSON_BY_LOCATION_ID = 'https://www.instagram.com/explore/locations/{{facebookLocationId}}/?__a=1&max_id={{maxId}}';
-    const MEDIA_JSON_BY_TAG = 'https://www.instagram.com/graphql/query/?query_id=17882293912014529&tag_name={tag}&first=30&after={max_id}';
+    const MEDIA_JSON_BY_TAG = 'https://www.instagram.com/explore/tags/{tag}/?__a=1&max_id={max_id}';
     const GENERAL_SEARCH = 'https://www.instagram.com/web/search/topsearch/?query={query}';
     const ACCOUNT_JSON_INFO_BY_ID = 'ig_user({userId}){id,username,external_url,full_name,profile_pic_url,biography,followed_by{count},follows{count},media{count},is_private,is_verified}';
     const COMMENTS_BEFORE_COMMENT_ID_BY_CODE = 'https://www.instagram.com/graphql/query/?query_id=17852405266163336&shortcode={{shortcode}}&first={{count}}&after={{commentId}}';
@@ -49,10 +49,10 @@ class Endpoints
         return str_replace('{userId}', urlencode($id), static::ACCOUNT_JSON_INFO_BY_ID);
     }
 
-    public static function getAccountMediasJsonLink($userId, $maxId = '')
+    public static function getAccountMediasJsonLink($username, $maxId = '')
     {
-    	$url = str_replace('{user_id}', urlencode($userId), static::ACCOUNT_MEDIAS);
-    	return str_replace('{max_id}', urlencode($maxId), $url);
+        $url = str_replace('{username}', urlencode($username), static::ACCOUNT_MEDIAS);
+        return str_replace('{max_id}', urlencode($maxId), $url);
     }
 
     public static function getMediaPageLink($code)

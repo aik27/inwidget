@@ -16,7 +16,6 @@ use inWidget\Exception\inWidgetException;
  * @link http://inwidget.ru
  * @copyright 2014-2018 Alexandr Kazarmshchikov
  * @author Alexandr Kazarmshchikov
- * @version 1.2.4
  * @package inWidget
  *
  */

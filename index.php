@@ -11,7 +11,7 @@
  * @link http://inwidget.ru
  * @copyright 2014-2018 Alexandr Kazarmshchikov
  * @author Alexandr Kazarmshchikov
- * @version 1.2.4
+ * @version 1.2.5
  * @package inWidget
  * 
  */
@@ -44,7 +44,6 @@ catch (\Exception $e) {
 /* -----------------------------------------------------------
 	Custom initialization
 ------------------------------------------------------------*/
-
 /*
 try {
 
