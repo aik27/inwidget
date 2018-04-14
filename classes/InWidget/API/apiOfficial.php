@@ -37,15 +37,7 @@ class apiOfficial extends apiModel
 			return $this->account;
 		}
 		$account = '';
-		$answer = Request::get('https://api.instagram.com/v1/users/search?q='.$login.'&access_token='.$token);
-		$this->checkAnswer($answer,'getAccountByLogin');
-		foreach ($answer->body->data as $key=>$item){
-			if($item->username === $login){
-				$account = $item;
-				break;
-			}
-		}
-		$answer = Request::get('https://api.instagram.com/v1/users/'.$account->id.'/?access_token='.$token);
+		$answer = Request::get('https://api.instagram.com/v1/users/self/?access_token='.$token);
 		$this->checkAnswer($answer,'getAccountByLogin');
 		$this->account = $this->prepareAccountData($answer->body->data);
 		return $this->account;
@@ -63,12 +55,11 @@ class apiOfficial extends apiModel
 	 */
 	public function getMediasByLogin($login, $token, $count = 30, $maxId = '') 
 	{
-		$account = $this->getAccountByLogin($login, $token);
 		$index = 0;
 		$medias = [];
 		$isMoreAvailable = true;
 		while ($index < $count && $isMoreAvailable) {
-			$answer = Request::get('https://api.instagram.com/v1/users/'.$account['userid'].'/media/recent/?access_token='.$token.'&max_id='.$maxId);
+			$answer = Request::get('https://api.instagram.com/v1/users/self/media/recent/?access_token='.$token.'&max_id='.$maxId);
 			$this->checkAnswer($answer);
 			$nodes = $answer->body->data;
 			if (empty($nodes)) {
