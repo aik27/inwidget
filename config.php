@@ -14,11 +14,14 @@ $CONFIG = array(
 	// May combined with "tagsFromAccountOnly" option.
 	'HASHTAG' => '',
 		
-	// ACCESS TOKEN granted to you by some Instagram app.
-	// This option is optional. If you use it, widget will start 
-	// sending requests through the official API
-	'ACCESS_TOKEN' => '',
+	// Login and password for authorization [optional]
+	// Required for pagination and alternative methods of parsing.
+	'authLogin' => '',
+	'authPassword' => '',
 		
+	// DEPRECATED and will be remove in next versions
+	'ACCESS_TOKEN' => '',
+
 	// Specify here list of banned logins. 
 	// Photos of these users will not be display in widget.
 	// Separate usernames by comma. For example: mark18, kitty45

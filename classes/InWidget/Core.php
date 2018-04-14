@@ -73,11 +73,16 @@ class Core
 		$this->setLang();
 		$this->setSkin();
 		$this->setOptions();
-		if(!empty($this->config['ACCESS_TOKEN'])) {
-			$this->api = apiModel::getInstance('official');
+		try {
+			if(!empty($this->config['ACCESS_TOKEN'])) {
+				$this->api = apiModel::getInstance('official');
+			}
+			else {
+				$this->api = apiModel::getInstance('', $config['authLogin'], $config['authPassword']);
+			}
 		}
-		else {
-			$this->api = apiModel::getInstance();
+		catch (\Exception $e) {
+			throw new inWidgetException($e->getMessage(), 500, $this->getCacheFilePath());
 		}
 	}
 	/**
@@ -149,7 +154,12 @@ class Core
 			$this->data = json_decode(file_get_contents($this->getCacheFilePath()));
 		}
 		if(!is_object($this->data)) {
-			throw new \Exception('<b style="color:red;">Cache file contains plain text:</b><br />'.$this->data);
+			$this->data = $this->getBackup();
+			if(!is_object($this->data)) {
+				$this->data = $this->getCache();
+				throw new \Exception('<b style="color:red;">Cache file contains plain text:</b><br />'.$this->data);
+			}
+			else $this->data->isBackup = true;
 		}
 		return $this->data;
 	}
@@ -163,13 +173,14 @@ class Core
 		$data['banned'] = $this->banned;
 		$data['tags']	= $this->config['HASHTAG'];
 		$data['images']	= $this->medias;
+		$data['lastupdate']	= time();
 		return $data;
 	}
 	/**
 	 * @return mixed
 	 * @throws inWidgetException
 	 */
-	private function getCache() 
+	private function getCache()
 	{
 		if($this->config['cacheSkip'] === true) {
 			return false;
@@ -189,12 +200,25 @@ class Core
 		return $cacheData;
 	}
 	/**
+	 * @return mixed
+	 */
+	private function getBackup() {
+		$file = $this->getCacheFilePath().'_backup';
+		if(file_exists($file)) {
+			$rawData = file_get_contents($file);
+			$cacheData = json_decode($rawData);
+			if(!is_object($cacheData)) return $rawData;
+			else return $cacheData;
+		}
+	}
+	/**
 	 * @return null
 	 */
 	private function createCache() 
 	{
 		$data = json_encode($this->prepareData());
 		file_put_contents($this->getCacheFilePath(), $data, LOCK_EX);
+		file_put_contents($this->getCacheFilePath().'_backup', $data, LOCK_EX);
 	}
 	/**
 	 * @return string
@@ -264,6 +288,7 @@ class Core
 			throw new inWidgetException('Can\'t get access to file <b>{$cacheFile}</b>. Check file path or permissions.', 101, $this->getCacheFilePath());
 		}
 		fclose($cacheFile);
+		
 	}
 	/**
 	 * Set widget lang

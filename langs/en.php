@@ -22,4 +22,5 @@ $LANG = array(
 	'statFollowing'		=> 'following',
 	'imgEmpty'			=> 'user doesn\'t have any photos yet',
 	'imgEmptyByHash'	=> 'photos by tag <b>#{$hashtag}</b> not found',
+	'errorCache'		=> 'Cache update error. <br />Using version from',
 );

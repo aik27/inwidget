@@ -102,16 +102,18 @@ abstract class apiModel
 	 * Get API driver 
 	 *
 	 * @param string $drive [optional]
+	 * @param string $login [optional]
+	 * @param string $password [optional]
 	 * @return object
 	 */
-	public static function getInstance($drive = '')
+	public static function getInstance($drive = '', $login = '', $password = '')
 	{
 		switch ($drive) {
 			case 'official':
 				return new apiOfficial();
 				break;
 			default:
-				return new apiScraper();
+				return new apiScraper($login, $password);
 				break;
 		}
 	}

@@ -40,7 +40,7 @@ if(!$inWidget instanceof \inWidget\Core) {
 					width:<?= $inWidget->imgWidth ?>px;
 					height:<?= $inWidget->imgWidth ?>px;
 				}
-				.copyright {
+				.copyright, .cacheError {
 					width:<?= $inWidget->width ?>px;
 				}
 			</style>
@@ -53,7 +53,7 @@ if(!$inWidget instanceof \inWidget\Core) {
 <div id="widget" class="widget">
 	<a href="http://instagram.com/<?= $inWidget->data->username ?>" target="_blank" class="title">
 		<div class="icon">&nbsp;</div>
-		<div class="text"><?= $inWidget->lang['title'] ?></div>
+		<div class="text"><?= $inWidget->lang['title']; ?></div>
 		<div class="clear">&nbsp;</div>
 	</a>
 	<?php if($inWidget->toolbar == true): ?>
@@ -122,6 +122,11 @@ if(!$inWidget instanceof \inWidget\Core) {
 <div class='copyright'>
 	&copy; <a href='http://inwidget.ru' target='_blank' title='Free Instagram widget for your site!'>inwidget.ru</a>
 </div>
+<?php if(isset($inWidget->data->isBackup)): ?>
+	<div class='cacheError'>
+		<?= $inWidget->lang['errorCache'].' '.date('Y-m-d H:i:s',$inWidget->data->lastupdate) ?>
+	</div>
+<?php endif;?>
 </body>
 </html>
 <!-- 

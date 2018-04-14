@@ -19,11 +19,16 @@ namespace inWidget\API;
 
 class apiScraper extends apiModel 
 {
-	private $api = '';
+	public $api = '';
 	
-	public function __construct() 
+	public function __construct($login = '', $password = '') 
 	{
 		$this->api = new \InstagramScraper\Instagram();
+		if(!empty($login) AND !empty($password)) {
+			$api = $this->api->withCredentials($login, $password);
+			$api->login();
+			$this->api = $api;
+		}
 	}
 	
 	/**
