@@ -1,4 +1,4 @@
-﻿{
+{
     "name": "aik27/inwidget",
     "type": "library",
     "description": "Show pictures from instagram.com on your site!",
@@ -12,6 +12,8 @@
             "role": "Author, developer, copyright holder"
         }
     ],
+    "minimum-stability": "dev",
+    "prefer-stable": true,
     "require": {
         "php": ">=5.4.0",
 	    "ext-curl": "*",
