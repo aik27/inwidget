@@ -20,7 +20,7 @@ $CONFIG = array(
 	'ACCESS_TOKEN' => '',
 		
 	// Login and password for authorization [optional]
-	// Required for pagination and alternative methods of parsing.
+	// Required for alternative methods of parsing.
 	'authLogin' => '',
 	'authPassword' => '',
 		

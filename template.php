@@ -124,7 +124,7 @@ if(!$inWidget instanceof \inWidget\Core) {
 </div>
 <?php if(isset($inWidget->data->isBackup)): ?>
 	<div class='cacheError'>
-		<?= $inWidget->lang['errorCache'].' '.date('Y-m-d H:i:s',$inWidget->data->lastupdate) ?>
+		<?= $inWidget->lang['errorCache'].' '.date('Y-m-d H:i:s',$inWidget->data->lastupdate) .' <br /> '. $inWidget->lang['updateNeeded'] ?>
 	</div>
 <?php endif;?>
 </body>

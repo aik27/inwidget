@@ -9,10 +9,14 @@ class Endpoints
     const ACCOUNT_PAGE = 'https://www.instagram.com/{username}';
     const MEDIA_LINK = 'https://www.instagram.com/p/{code}';
     const ACCOUNT_MEDIAS = 'https://instagram.com/graphql/query/?query_id=17888483320059182&id={user_id}&first={count}&after={max_id}';
+    const ACCOUNT_MEDIAS_BY_HASH = 'https://www.instagram.com/graphql/query/?query_hash=42323d64886122307be10013ad2dcc44&variables={variables}';
+    const MEDIA_JSON_BY_TAG = 'https://www.instagram.com/explore/tags/{tag}/?__a=1&max_id={max_id}';
+    const MEDIA_JSON_BY_TAG_BY_HASH = 'https://www.instagram.com/graphql/query/?query_hash=ded47faa9a1aaded10161a2ff32abb6b&variables={variables}';
+    const MEDIA_JSON_BY_TAG_BY_QUERY = 'https://www.instagram.com/graphql/query/?query_id=17882293912014529&tag_name={tag}&first=30&after={max_id}';
+    
     const ACCOUNT_JSON_INFO = 'https://www.instagram.com/{username}/?__a=1';
     const MEDIA_JSON_INFO = 'https://www.instagram.com/p/{code}/?__a=1';
     const MEDIA_JSON_BY_LOCATION_ID = 'https://www.instagram.com/explore/locations/{{facebookLocationId}}/?__a=1&max_id={{maxId}}';
-    const MEDIA_JSON_BY_TAG = 'https://www.instagram.com/explore/tags/{tag}/?__a=1&max_id={max_id}';
     const GENERAL_SEARCH = 'https://www.instagram.com/web/search/topsearch/?query={query}';
     const ACCOUNT_JSON_INFO_BY_ID = 'ig_user({userId}){id,username,external_url,full_name,profile_pic_url,biography,followed_by{count},follows{count},media{count},is_private,is_verified}';
     const COMMENTS_BEFORE_COMMENT_ID_BY_CODE = 'https://www.instagram.com/graphql/query/?query_id=17852405266163336&shortcode={{shortcode}}&first={{count}}&after={{commentId}}';
@@ -65,6 +69,10 @@ class Endpoints
         $url = str_replace('{count}', static::$requestMediaCount, $url);
     	return str_replace('{max_id}', urlencode($maxId), $url);
     }
+    public static function getAccountMediasJsonLinkByHash($variables)
+    {
+    	return str_replace('{variables}', urlencode($variables), static::ACCOUNT_MEDIAS_BY_HASH);
+    }
 
     public static function getMediaPageLink($code)
     {
@@ -86,6 +94,16 @@ class Endpoints
     {
         $url = str_replace('{tag}', urlencode($tag), static::MEDIA_JSON_BY_TAG);
         return str_replace('{max_id}', urlencode($maxId), $url);
+    }
+    public static function getMediasJsonByTagLinkByHash($variables)
+    {
+    	return str_replace('{variables}', urlencode($variables), static::MEDIA_JSON_BY_TAG_BY_HASH);
+    }
+    public static function getMediasJsonByTagLinkByQuery($tag, $count, $maxId = '')
+    {
+    	$url = str_replace('{tag}', urlencode($tag), static::MEDIA_JSON_BY_TAG_BY_QUERY);
+    	$url = str_replace('{count}', static::$requestMediaCount, $url);
+    	return str_replace('{max_id}', urlencode($maxId), $url);
     }
 
     public static function getGeneralSearchJsonLink($query)

@@ -19,7 +19,7 @@ namespace inWidget\API;
 
 class apiScraper extends apiModel 
 {
-	public $api = '';
+	private $api = '';
 	
 	public function __construct($login = '', $password = '') 
 	{

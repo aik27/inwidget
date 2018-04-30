@@ -22,5 +22,6 @@ $LANG = array(
 	'statFollowing'		=> 'following',
 	'imgEmpty'			=> 'user doesn\'t have any photos yet',
 	'imgEmptyByHash'	=> 'photos by tag <b>#{$hashtag}</b> not found',
-	'errorCache'		=> 'Cache update error. <br />Using version from',
+	'errorCache'		=> 'Update cache error. Something went wrong.<br />Using version from',
+	'updateNeeded'		=> 'Please, update widget to last version from <a href="http://inwidget.ru/" target="_blank">inwidget.ru</a>',
 );

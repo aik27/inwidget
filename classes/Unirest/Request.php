@@ -395,6 +395,8 @@ class Request
     {
         self::$handle = curl_init();
 
+        //echo $url.'<br />';
+        
         if ($method !== Method::GET) {
 			if ($method === Method::POST) {
 				curl_setopt(self::$handle, CURLOPT_POST, true);
@@ -412,7 +414,6 @@ class Request
 
             $url .= urldecode(http_build_query(self::buildHTTPCurlQuery($body)));
         }
-
         $curl_base_options = [
             CURLOPT_URL => self::encodeUrl($url),
             CURLOPT_RETURNTRANSFER => true,
@@ -426,7 +427,7 @@ class Request
             // If an empty string, '', is set, a header containing all supported encoding types is sent
             CURLOPT_ENCODING => ''
         ];
-
+        
         /*
         $version = curl_version();
         if($version['version'] >= '7.10.8') {
@@ -576,7 +577,7 @@ class Request
     private static function encodeUrl($url)
     {
         $url_parsed = parse_url($url);
-
+        
         $scheme = $url_parsed['scheme'] . '://';
         $host   = $url_parsed['host'];
         $port   = (isset($url_parsed['port']) ? $url_parsed['port'] : null);

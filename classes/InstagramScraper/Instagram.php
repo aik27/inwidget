@@ -33,7 +33,8 @@ class Instagram
     private $sessionUsername;
     private $sessionPassword;
     private $userSession;
-    private $userAgent = null;
+    private $rhxGis = null;
+    private $userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.106 Safari/537.36';
     private static $headers = [
     	'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.87 Safari/537.36',
     	'Origin' => 'https://www.instagram.com',
@@ -215,7 +216,7 @@ class Instagram
      *
      * @return array
      */
-    private function generateHeaders($session)
+    private function generateHeaders($session, $gisToken = null)
     {
         $headers = [];
         if ($session) {
@@ -232,6 +233,9 @@ class Instagram
 
         if ($this->getUserAgent()) {
             $headers['user-agent'] = $this->getUserAgent();
+            if (!is_null($gisToken)) {
+            	$headers['x-instagram-gis'] = $gisToken;
+            }
         }
 
         return $headers;
@@ -274,20 +278,39 @@ class Instagram
      * @return Media[]
      * @throws InstagramException
      */
-    public function getMedias($username, $count = 20, $maxId = '')
+    public function getMedias($username, $count = 30, $maxId = '')
     {
+    	$tryNumber = 1;
     	$account = $this->getAccount($username);
     	$index = 0;
     	$medias = [];
     	$isMoreAvailable = true;
     	while ($index < $count && $isMoreAvailable) {
-    		$response = Request::get(Endpoints::getAccountMediasJsonLink($account->getId(), $maxId), $this->generateHeaders($this->userSession));
-    		if (static::HTTP_OK !== $response->code) {
-    			return $this->getMediasParser($username);
+    		// logic #1
+    		if($tryNumber === 1) {
+    			$variables = json_encode([
+    				'id' => (string) $account->getId(),
+    				'first' => (string) 30,
+    				'after' => (string) $maxId
+    			]);
+    			$response = Request::get(Endpoints::getAccountMediasJsonLinkByHash($variables), $this->generateHeaders($this->userSession, $this->generateGisToken($variables)));
+    			$arr = json_decode($response->raw_body, true, 512, JSON_BIGINT_AS_STRING);
+    			if ((static::HTTP_OK !== $response->code OR !is_array($arr) OR $arr['data']['user'] === null) AND !empty($this->userSession)) {
+    				$response = Request::get(Endpoints::getAccountMediasJsonLink($account->getId(), $maxId), $this->generateHeaders($this->userSession));
+    				$arr = json_decode($response->raw_body, true, 512, JSON_BIGINT_AS_STRING);
+    				$tryNumber = 2;
+    			}
+    			if (static::HTTP_OK !== $response->code OR !is_array($arr) OR $arr['data']['user'] === null) {
+    				return $this->getMediasParser($username);
+    			}
     		}
-    		$arr = json_decode($response->raw_body, true, 512, JSON_BIGINT_AS_STRING);
-    		if (!is_array($arr)) {
-    			return $this->getMediasParser($username);
+    		// logic #2
+    		elseif($tryNumber === 2) {
+    			$response = Request::get(Endpoints::getAccountMediasJsonLink($account->getId(), $maxId), $this->generateHeaders($this->userSession));
+    			$arr = json_decode($response->raw_body, true, 512, JSON_BIGINT_AS_STRING);
+    			if (static::HTTP_OK !== $response->code OR !is_array($arr) OR $arr['data']['user'] === null) {
+    				return $this->getMediasParser($username);
+    			}
     		}
     		$nodes = $arr['data']['user']['edge_owner_to_timeline_media']['edges'];
     		// fix - count takes longer/has more overhead
@@ -321,7 +344,7 @@ class Instagram
     	if (!preg_match('#window\._sharedData\s*=\s*(.*?)\s*;\s*</script>#', $response->raw_body, $matches)) {
     		throw new InstagramException('Unexpected page data format');
     	}
-    	$data = json_decode($matches[1], true);
+    	$data = json_decode($matches[1], true, 512, JSON_BIGINT_AS_STRING);
     	if(!isset($data['entry_data']['ProfilePage'][0]['graphql']['user'])) {
     		throw new InstagramException('Unexpected user data format');
     	}
@@ -361,9 +384,33 @@ class Instagram
         if (!isset($userArray['entry_data']['ProfilePage'][0]['graphql']['user'])) {
             throw new InstagramNotFoundException('Account with this username does not exist', 404);
         }
+        $this->rhxGis = $userArray['rhx_gis'];
         return Account::create($userArray['entry_data']['ProfilePage'][0]['graphql']['user']);
     }
-
+    private function getSharedDataFromPage($url = Endpoints::BASE_URL)
+    {
+    	$response = Request::get(rtrim($url, '/') . '/', $this->generateHeaders($this->userSession));
+    	if (static::HTTP_NOT_FOUND === $response->code) {
+    		throw new InstagramNotFoundException('Account with given username does not exist.');
+    	}
+    	if (static::HTTP_OK !== $response->code) {
+    		throw new InstagramException('Response code is ' . $response->code . '. Body: ' . static::getErrorBody($response->body) . ' Something went wrong. Please report issue.');
+    	}
+    	preg_match_all('#\_sharedData \= (.*?)\;\<\/script\>#', $response->raw_body, $out);
+    	return json_decode($out[1][0], true, 512, JSON_BIGINT_AS_STRING);
+    }
+    private function getRhxGis()
+    {
+    	if ($this->rhxGis === null) {
+    		$sharedData = $this->getSharedDataFromPage();
+    		$this->rhxGis = $sharedData['rhx_gis'];
+    	}
+    	return $this->rhxGis;
+    }
+    private function generateGisToken($variables)
+    {
+    	return md5(implode(':', [$this->getRhxGis(), $variables ]));
+    }
     /**
      * @param int $id
      * @param int $count
@@ -787,28 +834,77 @@ class Instagram
      * @return Media[]
      * @throws InstagramException
      */
-    public function getMediasByTag($tag, $count = 12, $maxId = '', $minTimestamp = null)
+    public function getMediasByTag($tag, $count = 30, $maxId = '', $minTimestamp = null)
     {
+    	$tryNumber = 1;
         $index = 0;
         $medias = [];
         $mediaIds = [];
         $hasNextPage = true;
         while ($index < $count && $hasNextPage) {
-            $response = Request::get(Endpoints::getMediasJsonByTagLink($tag, $maxId),
-                $this->generateHeaders($this->userSession));
-            if ($response->code !== 200) {
-            	return $this->getMediasByTagParser($tag);
-            }
+        	
+        	// logic #1
+        	if($tryNumber === 1) {
+        		$variables = json_encode([
+        			'tag_name' => (string) $tag,
+        			'first' => (string) 30,
+        			'after' => (string) $maxId
+        		]);
+        		$response = Request::get(Endpoints::getMediasJsonByTagLinkByHash($variables), $this->generateHeaders($this->userSession, $this->generateGisToken($variables)));
+        		$arr = json_decode($response->raw_body, true, 512, JSON_BIGINT_AS_STRING);
+        		if ((static::HTTP_OK !== $response->code OR !is_array($arr)) AND !empty($this->userSession)) {
+        			$response = Request::get(Endpoints::getMediasJsonByTagLinkByQuery($tag, $count, $maxId), $this->generateHeaders($this->userSession));
+        			$arr = json_decode($response->raw_body, true, 512, JSON_BIGINT_AS_STRING);
+        			$tryNumber = 2;
+        		}
+        		if (static::HTTP_OK !== $response->code OR !is_array($arr)) {
+        			$response = Request::get(Endpoints::getMediasJsonByTagLink($tag, $maxId), $this->generateHeaders($this->userSession));
+        			$arr = json_decode($response->raw_body, true, 512, JSON_BIGINT_AS_STRING);
+        			$tryNumber = 3;
+        		}
+        		if (static::HTTP_OK !== $response->code OR !is_array($arr)) {
+        			return $this->getMediasByTagParser($tag);
+        		}
+        	}
+        	// logic #2
+        	elseif($tryNumber === 2) {
+        		$response = Request::get(Endpoints::getMediasJsonByTagLinkByQuery($tag, $count, $maxId), $this->generateHeaders($this->userSession));
+        		$arr = json_decode($response->raw_body, true, 512, JSON_BIGINT_AS_STRING);
+        		if (static::HTTP_OK !== $response->code OR !is_array($arr)) {
+        			$response = Request::get(Endpoints::getMediasJsonByTagLink($tag, $maxId), $this->generateHeaders($this->userSession));
+        			$arr = json_decode($response->raw_body, true, 512, JSON_BIGINT_AS_STRING);
+        			$tryNumber = 3;
+        		}
+        		if (static::HTTP_OK !== $response->code OR !is_array($arr)) {
+        			return $this->getMediasByTagParser($tag);
+        		}
+        	}
+        	// logic #3
+        	elseif($tryNumber === 3) {
+        		$response = Request::get(Endpoints::getMediasJsonByTagLink($tag, $maxId), $this->generateHeaders($this->userSession));
+        		$arr = json_decode($response->raw_body, true, 512, JSON_BIGINT_AS_STRING);
+        		if (static::HTTP_OK !== $response->code OR !is_array($arr)) {
+        			return $this->getMediasByTagParser($tag);
+        		}
+        	}
             $cookies = static::parseCookies($response->headers['Set-Cookie']);
             $this->userSession['csrftoken'] = $cookies['csrftoken'];
-            $arr = json_decode($response->raw_body, true, 512, JSON_BIGINT_AS_STRING);
             if (!is_array($arr)) {
                 throw new InstagramException('Response decoding failed. Returned data corrupted or this library outdated. Please report issue');
             }
-            if (empty($arr['graphql']['hashtag']['edge_hashtag_to_media']['count'])) {
-                return [];
+            
+            if($tryNumber>=3) {
+	            if (empty($arr['graphql']['hashtag']['edge_hashtag_to_media']['count'])) {
+	                return [];
+	            }
+	            $nodes = $arr['graphql']['hashtag']['edge_hashtag_to_media']['edges'];
             }
-            $nodes = $arr['graphql']['hashtag']['edge_hashtag_to_media']['edges'];
+            else {
+            	if (empty($arr['data']['hashtag']['edge_hashtag_to_media']['count'])) {
+            		return [];
+            	}
+            	$nodes = $arr['data']['hashtag']['edge_hashtag_to_media']['edges'];
+            }
             foreach ($nodes as $mediaArray) {
                 if ($index === $count) {
                     return $medias;
@@ -827,8 +923,14 @@ class Instagram
             if (empty($nodes)) {
                 return $medias;
             }
-            $maxId = $arr['graphql']['hashtag']['edge_hashtag_to_media']['page_info']['end_cursor'];
-            $hasNextPage = $arr['graphql']['hashtag']['edge_hashtag_to_media']['page_info']['has_next_page'];
+            if($tryNumber>=3) {
+           		$maxId = $arr['graphql']['hashtag']['edge_hashtag_to_media']['page_info']['end_cursor'];
+            	$hasNextPage = $arr['graphql']['hashtag']['edge_hashtag_to_media']['page_info']['has_next_page'];
+            }
+            else {
+            	$maxId = $arr['data']['hashtag']['edge_hashtag_to_media']['page_info']['end_cursor'];
+            	$hasNextPage = $arr['data']['hashtag']['edge_hashtag_to_media']['page_info']['has_next_page'];
+            }
         }
         return $medias;
     }
