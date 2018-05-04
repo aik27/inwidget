@@ -8,7 +8,7 @@
  *
  * @link http://inwidget.ru
  * @author Alexandr Kazarmshchikov
- * @version 1.2.8
+ * @version 1.2.9
  * @package inWidget
  *
  */
@@ -166,7 +166,7 @@ require_once 'inwidget/classes/InWidget.php';
 
 try {
 	
-	// Options may change through class constructor. For example:
+	// Options may change through the class constructor. For example:
 	
 	$config = array(
 		'LOGIN' => 'fotokto_ru',
@@ -244,6 +244,12 @@ catch (\Exception $e) {
 // ----------------------------------------
 // История версий:
 // ----------------------------------------
+
+inWidget-1.2.9
+Дата: 04 мая 2018 г.
+
+* Добавлена поддержка composer
+* Добавлена документация на английском языке
 
 inWidget-1.2.8
 Дата: 01 мая 2018 г.

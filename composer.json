@@ -8,8 +8,7 @@
     "authors": [
         {
             "name": "Alexandr Kazarmshchikov",
-            "email": "aik@inwidget.ru",
-            "role": "Author, developer, copyright holder"
+            "email": "aik@inwidget.ru"
         }
     ],
     "minimum-stability": "dev",

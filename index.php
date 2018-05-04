@@ -11,7 +11,7 @@
  * @link http://inwidget.ru
  * @copyright 2014-2018 Alexandr Kazarmshchikov
  * @author Alexandr Kazarmshchikov
- * @version 1.2.8
+ * @version 1.2.9
  * @package inWidget
  * 
  */
@@ -48,7 +48,7 @@ catch (\Exception $e) {
 /*
 try {
 
-	// Options may change through class constructor. For example:
+	// Options may change through the class constructor. For example:
 	
 	$config = array(
 		'LOGIN' => 'fotokto_ru',
