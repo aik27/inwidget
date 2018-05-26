@@ -1,9 +1,9 @@
 {
     "name": "aik27/inwidget",
     "type": "library",
-    "description": "Show pictures from instagram.com on your site!",
+    "description": "Show pictures from instagram.com on your website!",
     "keywords": ["instagram","widget"],
-    "homepage": "http://inwidget.ru/",
+    "homepage": "https://inwidget.ru/",
     "license": "MIT",
     "authors": [
         {

@@ -8,9 +8,9 @@ namespace inWidget\Exception;
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of MIT license
- * http://inwidget.ru/MIT-license.txt
+ * https://inwidget.ru/MIT-license.txt
  *
- * @link http://inwidget.ru
+ * @link https://inwidget.ru
  * @copyright 2014-2018 Alexandr Kazarmshchikov
  * @author Alexandr Kazarmshchikov
  * @package inWidget
@@ -23,7 +23,7 @@ class inWidgetException extends \Exception
 	{
 		$text = str_replace('{$cacheFile}', $cacheFile, $text);
 		$text = strip_tags($text);
-		$result = '<b>ERROR <a href="http://inwidget.ru/#error'.$code.'" target="_blank">#'.$code.'</a>:</b> '.$text;
+		$result = '<b>ERROR <a href="https://inwidget.ru/#error'.$code.'" target="_blank">#'.$code.'</a>:</b> '.$text;
 		if($code >= 401) {
 			file_put_contents($cacheFile, $result, LOCK_EX);
 		}

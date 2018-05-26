@@ -5,9 +5,9 @@
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of MIT license
- * http://inwidget.ru/MIT-license.txt
+ * https://inwidget.ru/MIT-license.txt
  * 
- * @link http://inwidget.ru
+ * @link https://inwidget.ru
  * @copyright 2014-2018 Alexandr Kazarmshchikov
  * @author Alexandr Kazarmshchikov
  * @package inWidget
@@ -51,7 +51,7 @@ if(!$inWidget instanceof \inWidget\Core) {
 	</head>
 <body>
 <div id="widget" class="widget">
-	<a href="http://instagram.com/<?= $inWidget->data->username ?>" target="_blank" class="title">
+	<a href="https://instagram.com/<?= $inWidget->data->username ?>" target="_blank" class="title">
 		<div class="icon">&nbsp;</div>
 		<div class="text"><?= $inWidget->lang['title']; ?></div>
 		<div class="clear">&nbsp;</div>
@@ -77,7 +77,7 @@ if(!$inWidget instanceof \inWidget\Core) {
 			</tr>
 			<tr>
 				<td colspan="3" style="border-right:none !important;">
-					<a href="http://instagram.com/<?= $inWidget->data->username ?>" class="follow" target="_blank"><?= $inWidget->lang['buttonFollow'] ?> &#9658;</a>
+					<a href="https://instagram.com/<?= $inWidget->data->username ?>" class="follow" target="_blank"><?= $inWidget->lang['buttonFollow'] ?> &#9658;</a>
 				</td>
 			</tr>
 		</table>
@@ -120,7 +120,7 @@ if(!$inWidget instanceof \inWidget\Core) {
 	?>
 </div>
 <div class='copyright'>
-	&copy; <a href='http://inwidget.ru' target='_blank' title='Free Instagram widget for your site!'>inwidget.ru</a>
+	&copy; <a href='https://inwidget.ru' target='_blank' title='Free Instagram widget for your website!'>inwidget.ru</a>
 </div>
 <?php if(isset($inWidget->data->isBackup)): ?>
 	<div class='cacheError'>
@@ -131,6 +131,6 @@ if(!$inWidget instanceof \inWidget\Core) {
 </html>
 <!-- 
 	inWidget - free Instagram widget for your site!
-	http://inwidget.ru
+	https://inwidget.ru
 	© Alexandr Kazarmshchikov
 -->

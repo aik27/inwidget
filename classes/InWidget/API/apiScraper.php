@@ -8,9 +8,9 @@ namespace inWidget\API;
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of MIT license
- * http://inwidget.ru/MIT-license.txt
+ * https://inwidget.ru/MIT-license.txt
  *
- * @link http://inwidget.ru
+ * @link https://inwidget.ru
  * @copyright 2014-2018 Alexandr Kazarmshchikov
  * @author Alexandr Kazarmshchikov
  * @package inWidget\API
@@ -141,12 +141,16 @@ class apiScraper extends apiModel
 			$data[$key]['created'] 			= $item->getCreatedTime();
 			$data[$key]['text'] 			= $item->getCaption();
 			$data[$key]['link'] 			= $item->getLink();
+			$data[$key]['type'] 			= $item->getType();
 			$data[$key]['fullsize'] 		= $item->getImageHighResolutionUrl();
 			$data[$key]['large'] 			= $item->getImageStandardResolutionUrl();
 			$data[$key]['small'] 			= $item->getImageLowResolutionUrl();
 			$data[$key]['likesCount'] 		= $item->getLikesCount();
 			$data[$key]['commentsCount'] 	= $item->getCommentsCount();
 			$data[$key]['authorId'] 		= $item->getOwnerId();
+			if(empty($data[$key]['type'])) {
+				$data[$key]['type'] = "image";
+			}
 		}
 		return $data;
 	}

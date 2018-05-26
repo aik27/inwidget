@@ -2,9 +2,9 @@
 
 This library is based on PHP and allows you to show photos from your Instagram account on your website.
 
-[Demonstration >>](http://inwidget.ru/en/demo.php)
+[Demonstration >>](https://inwidget.ru/en/demo.php)
 
-![demo](http://inwidget.ru/i/demo_en_2.jpg)
+![demo](https://inwidget.ru/i/demo_en_2.jpg)
 
 ### Features:
 
@@ -58,7 +58,7 @@ List of parameters:
 
 + **LOGIN** - Instagram login
 + **HASHTAG** - hashtags separated by a comma (for example: girl, man). Selection will be made from around the world in the order that photos were marked with desired tags
-+ **ACCESS_TOKEN** - a hashkey granted to you by an Instagram app. This option is NOT required. If you use it, the widget will start sending requests through the official endpoints API (https://www.instagram.com/developer/). In this case, the widget will have only those rights and limits that the application itself possesses. For more information about, please, use this link: http://inwidget.ru/#token
++ **ACCESS_TOKEN** - a hashkey granted to you by an Instagram app. This option is NOT required. If you use it, the widget will start sending requests through the official endpoints API (https://www.instagram.com/developer/). In this case, the widget will have only those rights and limits that the application itself possesses. For more information about, please, use this link: https://inwidget.ru/#token
 + **authLogin and authPassword** - login and password of an account for authorization. This options are NOT required. Authorization is necessary for alternative methods of obtaining data and provides more stability when you using the undocumented API. I advise you to create a separate account for this with disabled two-step authentication. Authorization data is not transferred to third parties and author of the widget
 + **tagsBannedLogins** - Specify here list of banned logins. Photos of these users will not be display in the widget. Separate usernames by a comma. For example: mark18, kitty45
 + **tagsFromAccountOnly** - Search tagged media from your account only [ true / false ]. To improve search increase value of "imgCount" option
@@ -121,7 +121,7 @@ List of parameters:
 When you changing width or number of photos, do not forget to change IFRAME tag size.
 
 
-## How to make the widget adaptive / responsive? [(example)](http://inwidget.ru/adaptive.php)
+## How to make the widget adaptive / responsive? [(example)](https://inwidget.ru/adaptive.php)
 
 Add GET variable "adaptive" in the URL of IFRAME tag.
  
@@ -131,7 +131,7 @@ Add GET variable "adaptive" in the URL of IFRAME tag.
 
 The value must be set to true. After that, the widget will automatically adjust to the dimensions of html container or browser window. In this case, the GET parameter "width" will be ignored, the "inline" parameter will have an effect when the widget width of more than 400px.
 
-Please, see demonstration of adaptive mode: http://inwidget.ru/adaptive.php
+Please, see demonstration of adaptive mode: https://inwidget.ru/adaptive.php
 
 ## Video instruction how to get ACCESS TOKEN
 
@@ -228,10 +228,10 @@ Please, see what exactly was written into the cached file. This error is generat
 
 ## Feedback, questions and suggestions
 
-Visit website: http://inwidget.ru
-Write to: aik@inwidget.ru 
-Join to development on GitHub: https://github.com/aik27/inwidget
-Article about inWidget on Habrahabr: http://habrahabr.ru/post/223739/
++ Visit website: https://inwidget.ru
++ Write to: aik@inwidget.ru 
++ Join to development on GitHub: https://github.com/aik27/inwidget
++ Article about inWidget on Habrahabr: http://habrahabr.ru/post/223739/
 
 ## Donate
 
@@ -243,10 +243,10 @@ Thank you!
 
 ## Copyrights
 
-Author: Alexandr Kazarmshchikov
-E-mail: aik@inwidget.ru
-Site: http://inwidget.ru
++ Author: Alexandr Kazarmshchikov
++ E-mail: aik@inwidget.ru
++ Site: https://inwidget.ru
 
 ## License
 
-This library is free software; you can redistribute it and/or modify it under the terms of MIT license: http://inwidget.ru/MIT-license.txt
+This library is free software; you can redistribute it and/or modify it under the terms of MIT license: https://inwidget.ru/MIT-license.txt

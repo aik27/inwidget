@@ -11,9 +11,9 @@ use inWidget\Exception\inWidgetException;
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of MIT license
- * http://inwidget.ru/MIT-license.txt
+ * https://inwidget.ru/MIT-license.txt
  *
- * @link http://inwidget.ru
+ * @link https://inwidget.ru
  * @copyright 2014-2018 Alexandr Kazarmshchikov
  * @author Alexandr Kazarmshchikov
  * @package inWidget
@@ -235,14 +235,20 @@ class Core
 	 */
 	private function checkConfig() 
 	{
+		if(!empty($this->config['skinAvailable'])) {
+			$this->skinAvailable = $this->config['skinAvailable'];
+		}
+		if(!empty($this->config['langAvailable'])) {
+			$this->langAvailable = $this->config['langAvailable'];
+		}
 		if(empty($this->config['LOGIN'])) {
 			throw new \Exception(__CLASS__.': LOGIN required in config.php');
 		}
 		if(!in_array($this->config['langDefault'], $this->langAvailable, true)){
-			throw new \Exception(__CLASS__.': default language does not present in "langAvailable" class property');
+			throw new \Exception(__CLASS__.': default language does not present in "langAvailable" config property');
 		}
 		if(!in_array($this->config['skinDefault'], $this->skinAvailable, true)){
-			throw new \Exception(__CLASS__.': default skin does not present in "skinAvailable" class property');
+			throw new \Exception(__CLASS__.': default skin does not present in "skinAvailable" config property');
 		}
 		$this->langPath = __DIR__.'/'.$this->langPath; // PHP < 5.6 fix
 		$this->cachePath = __DIR__.'/'.$this->cachePath; // PHP < 5.6 fix

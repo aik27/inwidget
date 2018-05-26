@@ -10,9 +10,9 @@ use Unirest\Request;
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of MIT license
- * http://inwidget.ru/MIT-license.txt
+ * https://inwidget.ru/MIT-license.txt
  *
- * @link http://inwidget.ru
+ * @link https://inwidget.ru
  * @copyright 2014-2018 Alexandr Kazarmshchikov
  * @author Alexandr Kazarmshchikov
  * @package inWidget\API
@@ -22,6 +22,7 @@ use Unirest\Request;
 class apiOfficial extends apiModel 
 {
 	private $account = [];
+	
 	/**
 	 * Get account data by login
 	 *
@@ -174,6 +175,7 @@ class apiOfficial extends apiModel
 			$data[$key]['created'] 			= $item->created_time;
 			$data[$key]['text'] 			= $item->caption->text;
 			$data[$key]['link'] 			= $item->link;
+			$data[$key]['type'] 			= $item->type;
 			$data[$key]['fullsize'] 		= $item->images->standard_resolution->url;
 			$data[$key]['large'] 			= $item->images->low_resolution->url;
 			$data[$key]['small'] 			= $item->images->thumbnail->url;
