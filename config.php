@@ -9,10 +9,10 @@ $CONFIG = array(
 	// Main settings
 	// -------------------------------------------------------------
 		
-	// Instagram login
+	// Primary Instagram login
 	'LOGIN' => 'fotokto_ru',
 		
-	// Get pictures from around the world by hashtags. 
+	// Primary hashtags
 	// Separate hashtags by a comma. For example: girl, man
 	'HASHTAG' => '',
 
@@ -20,7 +20,7 @@ $CONFIG = array(
 	// Authorization (NOT required)
 	// -------------------------------------------------------------
 		
-	// Access token granted to you by an Instagram app.
+	// Access token granted to your primary account by an Instagram app.
 	// If you use it, the widget will start sending requests through the official API (https://www.instagram.com/developer/)
 	'ACCESS_TOKEN' => '',
 		
@@ -29,6 +29,25 @@ $CONFIG = array(
 	'authLogin' => '',
 	'authPassword' => '',
 
+	// -------------------------------------------------------------
+	// Multi-account configuration
+	// -------------------------------------------------------------
+		
+	// If you need to separete logins on diffent website pages, just add possible logins to the array below.
+	// After that you can send login to the widget by GET variable. It workds only with the undocumented API.
+	// Example: /inwidget/index.php?login=fotokto_ru
+	'loginAvailable' => [
+		#'fotokto_ru',
+		#'instagram',
+	],
+	// Same option for tagged media. Add possible tags to the array below. 
+	// Then you can use GET variable for tags. Example: /inwidget/index.php?tag=photography
+	// You can mix this option with "loginAvailable" and "tagsFromAccountOnly"
+	'tagsAvailable' => [
+		#'girl',
+		#'photography',
+	],
+		
 	// -------------------------------------------------------------
 	// Tags
 	// -------------------------------------------------------------

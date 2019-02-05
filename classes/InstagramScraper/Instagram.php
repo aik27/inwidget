@@ -41,7 +41,8 @@ class Instagram
     	'Referer' => 'https://www.instagram.com',
     	'Connection' => 'close'
     ];
-
+    public static $debug = false;
+    public static $version = 'v0.8.17'; // source version with inWidget modifications
     /**
      * @param string $username
      * @param string $password
@@ -296,11 +297,13 @@ class Instagram
     			$response = Request::get(Endpoints::getAccountMediasJsonLinkByHash($variables), $this->generateHeaders($this->userSession, $this->generateGisToken($variables)));
     			$arr = json_decode($response->raw_body, true, 512, JSON_BIGINT_AS_STRING);
     			if ((static::HTTP_OK !== $response->code OR !is_array($arr) OR $arr['data']['user'] === null) AND !empty($this->userSession)) {
+    				if(static::$debug) echo 'Iteration 1. Try endpoint 2 - ACCOUNT_MEDIAS<br />';
     				$response = Request::get(Endpoints::getAccountMediasJsonLink($account->getId(), $maxId), $this->generateHeaders($this->userSession));
     				$arr = json_decode($response->raw_body, true, 512, JSON_BIGINT_AS_STRING);
     				$tryNumber = 2;
     			}
     			if (static::HTTP_OK !== $response->code OR !is_array($arr) OR $arr['data']['user'] === null) {
+    				if(static::$debug) echo 'Iteration 1. Try parser<br />';
     				return $this->getMediasParser($username);
     			}
     		}
@@ -309,6 +312,7 @@ class Instagram
     			$response = Request::get(Endpoints::getAccountMediasJsonLink($account->getId(), $maxId), $this->generateHeaders($this->userSession));
     			$arr = json_decode($response->raw_body, true, 512, JSON_BIGINT_AS_STRING);
     			if (static::HTTP_OK !== $response->code OR !is_array($arr) OR $arr['data']['user'] === null) {
+    				if(static::$debug) echo 'Iteration 2. Try parser<br />';
     				return $this->getMediasParser($username);
     			}
     		}
@@ -853,16 +857,19 @@ class Instagram
         		$response = Request::get(Endpoints::getMediasJsonByTagLinkByHash($variables), $this->generateHeaders($this->userSession, $this->generateGisToken($variables)));
         		$arr = json_decode($response->raw_body, true, 512, JSON_BIGINT_AS_STRING);
         		if ((static::HTTP_OK !== $response->code OR !is_array($arr)) AND !empty($this->userSession)) {
+        			if(static::$debug) echo 'Iteration 1. Try endpoint 2 - MEDIA_JSON_BY_TAG_BY_QUERY<br />';
         			$response = Request::get(Endpoints::getMediasJsonByTagLinkByQuery($tag, $count, $maxId), $this->generateHeaders($this->userSession));
         			$arr = json_decode($response->raw_body, true, 512, JSON_BIGINT_AS_STRING);
         			$tryNumber = 2;
         		}
         		if (static::HTTP_OK !== $response->code OR !is_array($arr)) {
+        			if(static::$debug) echo 'Iteration 1. Try endpoint 3 - MEDIA_JSON_BY_TAG<br />';
         			$response = Request::get(Endpoints::getMediasJsonByTagLink($tag, $maxId), $this->generateHeaders($this->userSession));
         			$arr = json_decode($response->raw_body, true, 512, JSON_BIGINT_AS_STRING);
         			$tryNumber = 3;
         		}
         		if (static::HTTP_OK !== $response->code OR !is_array($arr)) {
+        			if(static::$debug) echo 'Iteration 1. Try parser<br />';
         			return $this->getMediasByTagParser($tag);
         		}
         	}
@@ -871,11 +878,13 @@ class Instagram
         		$response = Request::get(Endpoints::getMediasJsonByTagLinkByQuery($tag, $count, $maxId), $this->generateHeaders($this->userSession));
         		$arr = json_decode($response->raw_body, true, 512, JSON_BIGINT_AS_STRING);
         		if (static::HTTP_OK !== $response->code OR !is_array($arr)) {
+        			if(static::$debug) echo 'Iteration 2. Try endpoint 3 - MEDIA_JSON_BY_TAG<br />';
         			$response = Request::get(Endpoints::getMediasJsonByTagLink($tag, $maxId), $this->generateHeaders($this->userSession));
         			$arr = json_decode($response->raw_body, true, 512, JSON_BIGINT_AS_STRING);
         			$tryNumber = 3;
         		}
         		if (static::HTTP_OK !== $response->code OR !is_array($arr)) {
+        			if(static::$debug) echo 'Iteration 2. Try parser<br />';
         			return $this->getMediasByTagParser($tag);
         		}
         	}
@@ -884,6 +893,7 @@ class Instagram
         		$response = Request::get(Endpoints::getMediasJsonByTagLink($tag, $maxId), $this->generateHeaders($this->userSession));
         		$arr = json_decode($response->raw_body, true, 512, JSON_BIGINT_AS_STRING);
         		if (static::HTTP_OK !== $response->code OR !is_array($arr)) {
+        			if(static::$debug) echo 'Iteration 3. Try parser<br />';
         			return $this->getMediasByTagParser($tag);
         		}
         	}
@@ -936,7 +946,8 @@ class Instagram
     }
     public function getMediasByTagParser($tag)
     {
-    	$response = Request::get('https://instagram.com/explore/tags/'.$tag.'/',self::$headers);
+    	//$response = Request::get('https://instagram.com/explore/tags/'.$tag.'/',self::$headers);
+    	$response = Request::get(Endpoints::getMediasJsonByTagLinkByParser($tag),self::$headers);
     	if (static::HTTP_OK !== $response->code) {
     		throw new InstagramException('Response code is ' . $response->code . '. Body: ' . static::getErrorBody($response->body) . ' Something went wrong. Please report issue.');
     	}
@@ -1345,9 +1356,14 @@ class Instagram
             if ($response->code !== 200) {
                 throw new InstagramException('Response code is ' . $response->code . '. Body: ' . static::getErrorBody($response->body) . ' Something went wrong. Please report issue.');
             }
+            //$cookies = static::parseCookies($response->headers['Set-Cookie']);
+            //$csrfToken = $cookies['csrftoken'];
+            preg_match('/"csrf_token":"(.*?)"/', $response->body, $match);
+            if(isset($match[1])) {
+            	$csrfToken = $match[1];
+            }
             $cookies = static::parseCookies($response->headers['Set-Cookie']);
             $mid = $cookies['mid'];
-            $csrfToken = $cookies['csrftoken'];
             $headers = ['cookie' => "csrftoken=$csrfToken; mid=$mid;",
                 'referer' => Endpoints::BASE_URL . '/',
                 'x-csrftoken' => $csrfToken,

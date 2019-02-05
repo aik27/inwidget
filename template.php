@@ -8,7 +8,7 @@
  * https://inwidget.ru/MIT-license.txt
  * 
  * @link https://inwidget.ru
- * @copyright 2014-2018 Alexandr Kazarmshchikov
+ * @copyright 2014-2019 Alexandr Kazarmshchikov
  * @author Alexandr Kazarmshchikov
  * @package inWidget
  *
@@ -60,7 +60,7 @@ if(!$inWidget instanceof \inWidget\Core) {
 		<table class="profile">
 			<tr>
 				<td rowspan="2" class="avatar">
-					<a href="http://instagram.com/<?= $inWidget->data->username ?>" target="_blank"><img src="<?= $inWidget->data->avatar ?>"></a>
+					<a href="https://instagram.com/<?= $inWidget->data->username ?>" target="_blank"><img src="<?= $inWidget->data->avatar ?>"></a>
 				</td>
 				<td class="value">
 					<?= $inWidget->data->posts; ?>

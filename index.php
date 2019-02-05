@@ -9,9 +9,9 @@
  * https://inwidget.ru/MIT-license.txt
  * 
  * @link https://inwidget.ru
- * @copyright 2014-2018 Alexandr Kazarmshchikov
+ * @copyright 2014-2019 Alexandr Kazarmshchikov
  * @author Alexandr Kazarmshchikov
- * @version 1.3.0
+ * @version 1.3.1
  * @package inWidget
  * 
  */
