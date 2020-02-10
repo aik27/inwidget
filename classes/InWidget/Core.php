@@ -14,7 +14,7 @@ use inWidget\Exception\inWidgetException;
  * https://inwidget.ru/MIT-license.txt
  *
  * @link https://inwidget.ru
- * @copyright 2014-2019 Alexandr Kazarmshchikov
+ * @copyright 2014-2020 Alexandr Kazarmshchikov
  * @author Alexandr Kazarmshchikov
  * @package inWidget
  *

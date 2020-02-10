@@ -294,7 +294,7 @@ class Instagram
     				'first' => (string) 30,
     				'after' => (string) $maxId
     			]);
-    			$response = Request::get(Endpoints::getAccountMediasJsonLinkByHash($variables), $this->generateHeaders($this->userSession, $this->generateGisToken($variables)));
+    			$response = Request::get(Endpoints::getAccountMediasJsonLinkByHash($variables), $this->generateHeaders($this->userSession));
     			$arr = json_decode($response->raw_body, true, 512, JSON_BIGINT_AS_STRING);
     			if ((static::HTTP_OK !== $response->code OR !is_array($arr) OR $arr['data']['user'] === null) AND !empty($this->userSession)) {
     				if(static::$debug) echo 'Iteration 1. Try endpoint 2 - ACCOUNT_MEDIAS<br />';
@@ -366,6 +366,109 @@ class Instagram
     	return $medias;
     }
     /**
+     * Get data by query hash
+     *
+     * @param array $variables
+     * @param string $queryHash
+     *
+     */
+    public static function queryHashRequest($variables, $queryHash) {
+    	$options = [
+    			'query' => [
+    					'query_hash' => $queryHash,
+    					'variables' => json_encode($variables)
+    			]
+    	];
+    	$httpQuery= http_build_query($options['query']);
+    	$response = Request::get('https://instagram.com/graphql/query/?'.$httpQuery);
+    	return $response;
+    }
+    /**
+     * Decode JSON objects
+     *
+     * @param mixed $data
+     *
+     */
+    public static function rDecode($data) {
+    	return json_decode($data, true, 512, JSON_BIGINT_AS_STRING);
+    }
+    public static function getAccountStatistic($accountID) {
+    	$follows = Instagram::queryHashRequest(
+    		[	'id' => $accountID,
+    			'first' => 0
+    		], 'd04b0a864b4b54837c0d870b0e77e076'
+    	);
+    	$media = Instagram::queryHashRequest(
+    		[	'id' => $accountID,
+    			'first' => 0
+    		], 'f2405b236d85e8296cf30347c9f08c2a'
+    	);
+    	$followed = Instagram::queryHashRequest(
+    		[	'id' => $accountID,
+    			'first' => 0
+    		], 'c76146de99bb02f6415203be841dd25a'
+    	);
+    	$queryFollows = Instagram::rDecode($follows->raw_body);
+    	$queryMedia = Instagram::rDecode($media->raw_body);
+    	$queryFollowed = Instagram::rDecode($followed->raw_body);
+    	$followsCount = $queryFollows['data']['user']['edge_follow']['count'];
+    	$mediaCount = $queryMedia['data']['user']['edge_owner_to_timeline_media']['count'];
+    	$followedCount = $queryFollowed['data']['user']['edge_followed_by']['count'];
+    	return [
+    		'follows' 	=> $followsCount,
+    		'followedBy'=> $followedCount,
+    		'medias' 	=> $mediaCount
+    	];
+    }
+    /**
+     * Search entry by web API
+     * 
+     * @param string $string - searching entry
+     * @param string $type - user, place, hashtag
+     *
+     */
+    public static function topSearch($string, $type) {
+    	$options = [
+    		'query' => [
+    			'context' => 'blended',
+    			'query' => $string,
+    			'count' => 1
+    		]
+    	];
+    	$httpQuery = http_build_query($options['query']);
+    	$response = Request::get(Endpoints::TOP_SEARCH.'?'.$httpQuery);
+    	if (static::HTTP_NOT_FOUND === $response->code) {
+    		throw new InstagramNotFoundException('Top search URL does not exist.');
+    	}
+    	if (static::HTTP_OK !== $response->code) {
+    		throw new InstagramException('Response code is ' . $response->code . '. Body: ' . static::getErrorBody($response->body) . ' Something went wrong.');
+    	}
+    	$body = Instagram::rDecode($response->raw_body);
+    	$data = [];
+    	switch($type) {
+    		case 'user':
+    			foreach ($body['users'] as $node) {
+    				if ($node['user']['username'] === $string) {
+    					$node['user']['id'] = $node['user']['pk'];
+    					$data = $node['user'];
+    					break;
+    				}
+    			}
+    			if(empty($data)){
+    				throw new InstagramNotFoundException('User "'.$string.'" does not exist.');
+    			}
+    			return $data;
+    			break;
+    		case 'place':
+    			return $body['places'][0]['place'];
+    			break;
+    		case 'hashtag':
+    			return $body['hashtags'][0]['hashtag'];
+    			break;
+    	}
+    	return [];
+    }
+    /**
      * @param string $username
      *
      * @return Account
@@ -374,6 +477,16 @@ class Instagram
      */
     public function getAccount($username)
     {
+    	$account = Instagram::topSearch($username, 'user');
+    	$statistic = Instagram::getAccountStatistic($account['id']);
+    	
+    	$account['followsCount'] = $statistic['follows'];
+    	$account['followedByCount'] = $statistic['followedBy'];
+    	$account['mediaCount'] = $statistic['medias'];
+
+    	return Account::create($account);
+
+    	/*
         $response = Request::get(Endpoints::getAccountPageLink($username), $this->generateHeaders($this->userSession));
         if (static::HTTP_NOT_FOUND === $response->code) {
             throw new InstagramNotFoundException('Account with given username does not exist.');
@@ -390,6 +503,8 @@ class Instagram
         }
         $this->rhxGis = $userArray['rhx_gis'];
         return Account::create($userArray['entry_data']['ProfilePage'][0]['graphql']['user']);
+        */
+    	
     }
     private function getSharedDataFromPage($url = Endpoints::BASE_URL)
     {
@@ -854,7 +969,7 @@ class Instagram
         			'first' => (string) 30,
         			'after' => (string) $maxId
         		]);
-        		$response = Request::get(Endpoints::getMediasJsonByTagLinkByHash($variables), $this->generateHeaders($this->userSession, $this->generateGisToken($variables)));
+        		$response = Request::get(Endpoints::getMediasJsonByTagLinkByHash($variables), $this->generateHeaders($this->userSession));
         		$arr = json_decode($response->raw_body, true, 512, JSON_BIGINT_AS_STRING);
         		if ((static::HTTP_OK !== $response->code OR !is_array($arr)) AND !empty($this->userSession)) {
         			if(static::$debug) echo 'Iteration 1. Try endpoint 2 - MEDIA_JSON_BY_TAG_BY_QUERY<br />';

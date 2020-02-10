@@ -1,6 +1,6 @@
 ﻿The MIT License (MIT)
 
-Copyright (c) 2014-2019 Alexandr Kazarmshchikov
+Copyright (c) 2014-2020 Alexandr Kazarmshchikov
 Site: https://inwidget.ru
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -21,7 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
-Copyright (c) 2014-2019 Александр Казармщиков
+Copyright (c) 2014-2020 Александр Казармщиков
 Сайт: https://inwidget.ru
 
 Данная лицензия разрешает лицам, получившим копию данного программного обеспечения 

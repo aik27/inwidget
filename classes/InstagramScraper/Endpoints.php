@@ -32,6 +32,7 @@ class Endpoints
     // other endpoints 
     const MEDIA_JSON_BY_LOCATION_ID = 'https://www.instagram.com/explore/locations/{{facebookLocationId}}/?__a=1&max_id={{maxId}}'; // topmedia by location id
     const GENERAL_SEARCH = 'https://www.instagram.com/web/search/topsearch/?query={query}';
+    const TOP_SEARCH = 'https://www.instagram.com/web/search/topsearch/';
     const ACCOUNT_JSON_INFO_BY_ID = 'ig_user({userId}){id,username,external_url,full_name,profile_pic_url,biography,followed_by{count},follows{count},media{count},is_private,is_verified}';
     const COMMENTS_BEFORE_COMMENT_ID_BY_CODE = 'https://www.instagram.com/graphql/query/?query_id=17852405266163336&shortcode={{shortcode}}&first={{count}}&after={{commentId}}';
     const LAST_LIKES_BY_CODE = 'ig_shortcode({{code}}){likes{nodes{id,user{id,profile_pic_url,username,follows{count},followed_by{count},biography,full_name,media{count},is_private,external_url,is_verified}},page_info}}';
@@ -122,7 +123,7 @@ class Endpoints
     {
         return str_replace('{query}', urlencode($query), static::GENERAL_SEARCH);
     }
-
+    
     public static function getCommentsBeforeCommentIdByCode($code, $count, $commentId)
     {
         $url = str_replace('{{shortcode}}', urlencode($code), static::COMMENTS_BEFORE_COMMENT_ID_BY_CODE);

@@ -238,6 +238,15 @@ class Account extends AbstractModel
             case 'edge_owner_to_timeline_media':
                 $this->mediaCount = !empty($array[$prop]['count']) ? $array[$prop]['count'] : 0;
                 break;
+            case 'mediaCount':
+            	$this->mediaCount = $value;
+            	break;
+            case 'followsCount':
+            	$this->followsCount = $value;
+            	break;
+            case 'followedByCount':
+            	$this->followedByCount = $value;
+            	break;
             case 'is_private':
                 $this->isPrivate = (bool)$value;
                 break;
