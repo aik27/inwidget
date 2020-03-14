@@ -11,8 +11,8 @@ class Request
     private static $handle = null;
     private static $jsonOpts = array();
     private static $socketTimeout = null;
-    private static $verifyPeer = false; // inWidget FIX
-    private static $verifyHost = false; // inWidget FIX
+    private static $verifyPeer = false;	// inWidget FIX
+    private static $verifyHost = false;	// inWidget FIX
 
     private static $auth = array (
         'user' => '',
@@ -398,11 +398,11 @@ class Request
         //echo $url.'<br />';
         
         if ($method !== Method::GET) {
-            if ($method === Method::POST) {
-                curl_setopt(self::$handle, CURLOPT_POST, true);
-            } else {
-                curl_setopt(self::$handle, CURLOPT_CUSTOMREQUEST, $method);
-            }
+			if ($method === Method::POST) {
+				curl_setopt(self::$handle, CURLOPT_POST, true);
+			} else {
+				curl_setopt(self::$handle, CURLOPT_CUSTOMREQUEST, $method);
+			}
 
             curl_setopt(self::$handle, CURLOPT_POSTFIELDS, $body);
         } elseif (is_array($body)) {
@@ -431,7 +431,7 @@ class Request
         /*
         $version = curl_version();
         if($version['version'] >= '7.10.8') {
-            $curl_base_options[CURLOPT_IPRESOLVE] = CURL_IPRESOLVE_V4;
+        	$curl_base_options[CURLOPT_IPRESOLVE] = CURL_IPRESOLVE_V4;
         }
         */
 
@@ -476,11 +476,10 @@ class Request
             ));
         }
 
-        // $response = curl_exec(self::$handle);
-        $response = self::curl_redir_exec(self::$handle); // inWidget FIX
-
-        $error = curl_error(self::$handle);
-        $info = self::getInfo();
+        //$response   = curl_exec(self::$handle);			// inWidget FIX
+        $response	= self::curl_redir_exec(self::$handle);	// inWidget FIX
+        $error      = curl_error(self::$handle);
+        $info       = self::getInfo();
 
         if ($error) {
             throw new Exception($error);
@@ -498,33 +497,28 @@ class Request
     // inWidget FIX
     // Function to fix open_basedir restriction with CURLOPT_FOLLOWLOCATION in shared hosting
     // More: https://stackoverflow.com/questions/2511410/curl-follow-location-error
-    public static function curl_redir_exec($ch)
-    {
-        $data = curl_exec($ch);
-        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        if ($http_code == 301 || $http_code == 302) {
-            $matches = array();
-            preg_match('/location:(.*?)\n/i', $data, $matches);
-            $url = @parse_url(trim(array_pop($matches)));
-            if (!$url) {
-                return $data;
-            }
-            $last_url = parse_url(curl_getinfo($ch, CURLINFO_EFFECTIVE_URL));
-            if (!$url['scheme']) {
-                $url['scheme'] = $last_url['scheme'];
-            }
-            if (!$url['host']) {
-                $url['host'] = $last_url['host'];
-            }
-            if (!$url['path']) {
-                $url['path'] = $last_url['path'];
-            }
-            $new_url = $url['scheme'] . '://' . $url['host'] . $url['path'] . ($url['query'] ? '?' . $url['query'] : '');
-            curl_setopt($ch, CURLOPT_URL, $new_url);
-            return self::curl_redir_exec($ch);
-        } else {
-            return $data;
-        }
+    public static function curl_redir_exec($ch){
+    	$data = curl_exec($ch);
+    	$http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    	if ($http_code == 301 || $http_code == 302) {
+    		$matches = array();
+    		preg_match('/Location:(.*?)\n/', $data, $matches);
+    		$url = @parse_url(trim(array_pop($matches)));
+    		if (!$url){
+    			$curl_loops = 0;
+    			return $data;
+    		}
+    		$last_url = parse_url(curl_getinfo($ch, CURLINFO_EFFECTIVE_URL));
+    		if (!$url['scheme']) $url['scheme'] = $last_url['scheme'];
+    		if (!$url['host']) 	$url['host'] = $last_url['host'];
+    		if (!$url['path']) 	$url['path'] = $last_url['path'];
+    		$new_url = $url['scheme'] . '://' . $url['host'] . $url['path'] . ($url['query'] ? '?'.$url['query']:'');
+    		curl_setopt($ch, CURLOPT_URL, $new_url);
+    		return self::curl_redir_exec($ch);
+    	} else {
+    		$curl_loops = 0;
+    		return $data;
+    	}
     }
     
     public static function getInfo($opt = false)

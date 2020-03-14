@@ -190,14 +190,14 @@ try {
        'langPath' => $_SERVER['DOCUMENT_ROOT'].'/inwidget/langs/',
     );
     
-    $inWidget = new \InWidget\Core($config);
+    $inWidget = new \inWidget\Core($config);
 	
     // Also, you may change default values of properties
 
     /*
     $inWidget->width = 800;         // widget width in pixels
     $inWidget->inline = 6;          // number of images in single line
-    $inWidget->view = 18;	        // number of images in widget
+    $inWidget->view = 18;	           // number of images in widget
     $inWidget->toolbar = false;     // show profile avatar, statistic and action button
     $inWidget->preview = 'large';   // quality of images: small, large, fullsize
     $inWidget->adaptive = false;    // enable adaptive mode
