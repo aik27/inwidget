@@ -8,7 +8,7 @@
  *
  * @link https://inwidget.ru
  * @author Alexandr Kazarmshchikov
- * @version 1.3.2
+ * @version 1.3.3
  * @package inWidget
  *
  */
@@ -195,7 +195,7 @@ try {
 		'langPath' => $_SERVER['DOCUMENT_ROOT'].'/inwidget/langs/',
 	);
 	
-	$inWidget = new \inWidget\Core($config);
+	$inWidget = new \InWidget\Core($config);
 	
 	// Also, you may change default values of properties
 
@@ -251,6 +251,12 @@ catch (\Exception $e) {
 // ----------------------------------------
 // История версий:
 // ----------------------------------------
+
+inWidget-1.3.3
+Дата: 15 марта 2020 г.
+
+* Исправлена ошибка парсинга URL при обращении к API, если в HTTP заголовке ответа присутствовал редирект. Не затрагивает версии cURL <= 7.59.0
+* Улучшение совместимости кода с PSR-12
 
 inWidget-1.3.2
 Дата: 10 февраля 2020 г.
