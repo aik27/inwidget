@@ -1487,8 +1487,12 @@ class Instagram
                 ['username' => $this->sessionUsername, 'password' => $this->sessionPassword]);
 
             if ($response->code !== 200) {
-                if ($response->code === 400 && isset($response->body->message) && $response->body->message == 'checkpoint_required' && $support_two_step_verification) {
-                    $response = $this->verifyTwoStep($response, $cookies);
+                if ($response->code === 400 && isset($response->body->message) && $response->body->message == 'checkpoint_required') {
+                    if($support_two_step_verification) {
+                        $response = $this->verifyTwoStep($response, $cookies);
+                    } else {
+                        throw new InstagramAuthException('Checkpoint required. Disable two step verification or try to login in browser first');
+                    }
                 } elseif ((is_string($response->code) || is_numeric($response->code)) && is_string($response->body)) {
                     throw new InstagramAuthException('Response code is ' . $response->code . '. Body: ' . $response->body . ' Something went wrong. Please report issue.');
                 } else {
